@@ -108,6 +108,7 @@
 
   .main { padding: 1.5rem 2rem; overflow-x: auto; }
   .main-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
+  .employee-name { margin-top: 0.35rem; font-size: 0.95rem; font-weight: 600; color: var(--ink); }
   .main-title { font-family: 'Google Sans Flex', sans-serif; font-size: 1.45rem; color: var(--ink); font-weight: 900; }
   .main-title .month-label { color: #2358A6; font-style: normal; font-weight: 900; }
   .school-info { font-size: 0.72rem; color: var(--muted); text-align: right; line-height: 1.6; }
@@ -119,7 +120,7 @@
   th:first-child { text-align: left; }
 
   td { border-bottom: 1px solid var(--border); border-right: 1px solid rgba(200,191,173,0.4); padding: 0; vertical-align: middle; }
-  td:first-child { padding: 0.3rem 0.6rem; font-family: 'Google Sans Mono', monospace; font-size: 0.75rem; white-space: nowrap; min-width: 88px; border-right: 1px solid var(--border); }
+  td:first-child { padding: 0.3rem 0.6rem; font-family: 'Google Sans Mono', monospace; font-size: 0.75rem; white-space: nowrap; min-width: 0; width: 1%; border-right: 1px solid var(--border); }
 
   tr.weekend td { background: var(--weekend); }
   tr.weekend td:first-child { color: var(--weekend-text); font-weight: 600; }
@@ -190,13 +191,14 @@
       border-bottom: 0.5pt solid #aaa;
     }
     .main-title { font-size: 10pt !important; line-height: 1.3; font-weight: 900; }
+    .employee-name { font-size: 15pt !important; font-weight: 700 !important; color: #000 !important; margin-top: 3pt; margin-bottom: 1pt; }
     .main-title .month-label { color: #2358A6 !important; font-style: normal; }
     .school-info { font-size: 6pt !important; color: #555 !important; text-align: right; line-height: 1.5; }
 
     /* ---- HOURS TABLE — splits naturally across pages 1–2 ---- */
     #hodiny-table {
       width: 100%;
-      table-layout: fixed;
+      table-layout: auto;
       border-collapse: collapse;
       font-size: 7pt;
       margin-bottom: 0;
@@ -218,7 +220,7 @@
       white-space: normal;
       line-height: 1.2;
     }
-    #hodiny-table th:first-child { text-align: left; width: 52pt; }
+    #hodiny-table th:first-child { text-align: left; width: auto; white-space: nowrap; }
     /* column widths tuned for 190mm portrait */
     #hodiny-table th:nth-child(2) { width: 30pt; }
     #hodiny-table th:nth-child(3) { width: 30pt; }
@@ -235,11 +237,11 @@
       overflow: hidden;
     }
     #hodiny-table td:first-child {
-      padding: 0 3pt;
-      font-size: 6.5pt;
+      padding: 0 4pt;
       font-family: 'Google Sans Mono', monospace;
       border-right: 0.5pt solid #bbb;
       white-space: nowrap;
+      width: 1%;
     }
 
     #hodiny-table td input[type="text"],
@@ -445,7 +447,7 @@ function generateTable() {
     <div class="main-header">
       <div>
         <div class="main-title">Výkaz evidence pracovní doby<br><span class="month-label">${MESICE[mesic]} ${rok}</span></div>
-        <div style="margin-top:0.3rem;font-size:0.8rem;color:var(--muted)">${jmeno||'—'} &nbsp;·&nbsp; <span style="color:var(--rust)">${cfg.label}</span></div>
+        <div class="employee-name">${jmeno||'—'} &nbsp;·&nbsp; <span style="color:var(--rust)">${cfg.label}</span></div>
       </div>
       <div class="school-info" style="display:flex;align-items:center;gap:1rem;justify-content:flex-end;">
         <div style="text-align:right">
@@ -895,7 +897,7 @@ function setAutoDatum() {
   const d = now.getDate();
   const m = now.getMonth() + 1;
   const y = now.getFullYear();
-  el.textContent = `V Liberci dne ${d}. ${m}. ${y}`;
+  el.textContent = `${d}. ${m}. ${y}`;
 }
 
 // ── AUTO-SCALE PAGE 1 TO FIT A4 PORTRAIT ──────────────────────────────────
@@ -908,43 +910,36 @@ function scaleForPrint() {
   const table = document.getElementById('hodiny-table');
   if (!table) return;
 
-  const tbody = table.querySelector('tbody');
-  const rows = tbody.querySelectorAll('tr');
+  const rows = table.querySelector('tbody').querySelectorAll('tr');
   const rowCount = rows.length;
 
-  // A4 portrait printable height in pt (297mm - 20mm margins = 277mm)
-  const PAGE_H_PT = 785;
-  // Header block height estimate in pt (main-header + section-title)
-  const HEADER_PT = 52;
-  // Table thead height in pt
-  const THEAD_PT = 22;
-  // Available for tbody rows
-  const AVAIL_PT = PAGE_H_PT - HEADER_PT - THEAD_PT;
-  // Ideal row height
-  const rowH = Math.floor((AVAIL_PT / rowCount) * 10) / 10;
+  // A4 portrait: 297mm - 20mm margins = 277mm = 785pt
+  // Subtract: main-header (~65pt) + employee-name (~22pt) + section-title (~14pt) + thead (~20pt)
+  const AVAIL_PT = 785 - 65 - 22 - 14 - 20;
 
-  // Clamp: don't go below 7pt or above 16pt
-  const clampedH = Math.min(16, Math.max(7, rowH));
+  // Ideal row height — no upper cap so rows truly fill the page
+  const rowH = Math.max(8, AVAIL_PT / rowCount);
 
-  // Font size scales proportionally (base 7pt at rowH 12pt)
-  const fontSize = Math.min(8.5, Math.max(5.5, clampedH * 0.62));
-  const inputH = clampedH - 0.5;
+  // Font scales with row height
+  const fontSize = Math.min(10, Math.max(6, rowH * 0.60));
+  const inputH = rowH - 1;
 
   const styleEl = document.getElementById('print-scale') || document.createElement('style');
   styleEl.id = 'print-scale';
   styleEl.textContent = `
     @media print {
       #hodiny-table td {
-        height: ${clampedH}pt !important;
+        height: ${rowH.toFixed(1)}pt !important;
+        max-height: ${rowH.toFixed(1)}pt !important;
       }
-      #hodiny-table td:first-child,
-      #hodiny-table td input,
-      #hodiny-table td select {
-        font-size: ${fontSize}pt !important;
+      #hodiny-table td:first-child {
+        font-size: ${fontSize.toFixed(1)}pt !important;
       }
       #hodiny-table td input,
-      #hodiny-table td select {
-        height: ${inputH}pt !important;
+      #hodiny-table td select.nemoc-sel {
+        font-size: ${fontSize.toFixed(1)}pt !important;
+        height: ${inputH.toFixed(1)}pt !important;
+        line-height: ${inputH.toFixed(1)}pt !important;
       }
     }
   `;
