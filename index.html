@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#f5f0e8" media="(prefers-color-scheme: light)">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Výkaz evidence pracovní doby</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..900&family=Google+Sans+Mono&display=swap" rel="stylesheet">
 <style>
     /* ── LIGHT MODE (default) ── */
@@ -967,7 +969,7 @@
     <div class="sidebar-section" id="export-section" style="display:none">
       <h3>Export / tisk</h3>
       <p style="font-size:0.75rem;color:var(--muted);line-height:1.5;margin-bottom:0.5rem">V dialogu tisku zvolte <strong>„Uložit jako PDF"</strong> nebo tiskárnu. Orientace je nastavena na <strong>výšku</strong>.</p>
-      <button class="btn btn-export" onclick="window.print()">🖨 Tisknout / Uložit jako PDF</button>
+      <button class="btn btn-export" onclick="exportPDF()">🖨 Tisknout / Uložit jako PDF</button>
       <button class="btn btn-clear" onclick="clearAll()">Vymazat hodnoty</button>
     </div>
 
@@ -1780,7 +1782,8 @@ window.addEventListener('beforeprint', () => {
 
 // Override window.print to scale first
 const _origPrint = window.print.bind(window);
-window.print = function() {
+
+async function exportPDF() {
   const jmeno = document.getElementById('jmeno')?.value?.trim();
   if (!jmeno || !document.getElementById('hodiny-body')) {
     showToast('⚠ Nejprve vygenerujte výkaz se jménem zaměstnance');
@@ -1788,8 +1791,90 @@ window.print = function() {
   }
   setAutoDatum();
   scaleForPrint();
-  setTimeout(_origPrint, 80);
-};
+
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if (isIOS || isSafari) {
+    await generatePDFDownload();
+  } else {
+    setTimeout(_origPrint, 80);
+  }
+}
+
+async function generatePDFDownload() {
+  const mesic = document.getElementById('mesic').value;
+  const rok = document.getElementById('rok').value;
+  const jmeno = document.getElementById('jmeno').value.trim();
+  const MESICE = ['','Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+
+  showToast('⏳ Generuji PDF...');
+
+  // Temporarily apply print styles
+  document.body.classList.add('generating-pdf');
+
+  const main = document.getElementById('main');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = 210, pageH = 297, margin = 10;
+    const contentW = pageW - 2 * margin;
+
+    // Page 1: hodiny table
+    const page1 = document.createElement('div');
+    page1.style.cssText = `width:${contentW * 3.7795}px;background:white;padding:0;`;
+    const mainClone1 = main.cloneNode(true);
+    // Hide page2 for first render
+    const p2 = mainClone1.querySelector('.print-page2');
+    if (p2) p2.style.display = 'none';
+    page1.appendChild(mainClone1);
+    document.body.appendChild(page1);
+
+    const canvas1 = await html2canvas(page1, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: contentW * 3.7795,
+      windowWidth: contentW * 3.7795,
+    });
+    document.body.removeChild(page1);
+
+    const imgH1 = (canvas1.height / canvas1.width) * contentW;
+    pdf.addImage(canvas1.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, contentW, Math.min(imgH1, pageH - 2*margin));
+
+    // Page 2: rest of content
+    const p2el = main.querySelector('.print-page2');
+    if (p2el) {
+      const page2 = document.createElement('div');
+      page2.style.cssText = `width:${contentW * 3.7795}px;background:white;padding:10px;`;
+      page2.appendChild(p2el.cloneNode(true));
+      document.body.appendChild(page2);
+
+      const canvas2 = await html2canvas(page2, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: contentW * 3.7795,
+      });
+      document.body.removeChild(page2);
+
+      pdf.addPage();
+      const imgH2 = (canvas2.height / canvas2.width) * contentW;
+      pdf.addImage(canvas2.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, contentW, Math.min(imgH2, pageH - 2*margin));
+    }
+
+    const filename = `Vykaz_${jmeno.replace(/\s+/g,'_')}_${MESICE[parseInt(mesic)]}_${rok}.pdf`;
+    pdf.save(filename);
+    showToast('✓ PDF staženo');
+  } catch(err) {
+    console.error('PDF error:', err);
+    // Fallback to print dialog
+    setTimeout(_origPrint, 80);
+  } finally {
+    document.body.classList.remove('generating-pdf');
+  }
+}
 </script>
 </body>
 </html>
