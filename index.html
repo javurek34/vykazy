@@ -805,7 +805,7 @@
       margin-bottom: 0;
       page-break-after: always;
     }
-    #hodiny-table col:first-child { width: 38pt !important; }
+    #hodiny-table col:first-child { width: 13mm !important; }
 
     /* Repeat header on every page */
     #hodiny-table thead { display: table-header-group; }
@@ -822,7 +822,7 @@
       white-space: normal;
       line-height: 1.2;
     }
-    #hodiny-table th:first-child { text-align: left; width: 38pt !important; max-width: 38pt !important; white-space: nowrap; }
+    #hodiny-table th:first-child { text-align: left; width: 13mm !important; max-width: 13mm !important; white-space: nowrap; }
     /* column widths tuned for 190mm portrait */
     #hodiny-table th:nth-child(2) { width: 30pt !important; }
     #hodiny-table th:nth-child(3) { width: 30pt !important; }
@@ -839,12 +839,12 @@
       overflow: hidden;
     }
     #hodiny-table td:first-child {
-      padding: 0 3pt;
+      padding: 0 2mm;
       font-family: 'Google Sans Mono', monospace;
       border-right: 0.5pt solid #bbb;
       white-space: nowrap;
-      width: 38pt !important;
-      max-width: 38pt !important;
+      width: 13mm !important;
+      max-width: 13mm !important;
       overflow: hidden;
     }
 
@@ -1300,7 +1300,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
 
     if (nonWork) {
       tr.innerHTML = `
-        <td style="width:38pt;max-width:38pt;min-width:0;overflow:hidden">${d}. ${dayName}${svatek?' 🎌':''}</td>
+        <td>${d}. ${dayName}${svatek?' 🎌':''}</td>
         <td class="weekend-marker" colspan="${colspanNonWork}">${(date.getDay()===0||date.getDay()===6)?'víkend':'státní svátek'}</td>
       `;
     } else {
@@ -1311,7 +1311,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
       const tdNahrada = cfg.nahrada ? `<td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-nahrada" data-day="${d}"></td>` : '';
 
       tr.innerHTML = `
-        <td style="width:38pt;max-width:38pt;min-width:0;overflow:hidden">${d}. ${dayName}</td>
+        <td>${d}. ${dayName}</td>
         <td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-hodiny" data-day="${d}" value="${defH}" oninput="updateStats()"></td>
         ${tdSup}
         ${tdNahrada}
