@@ -675,6 +675,41 @@
     /* Safari: suppress default page header/footer — must be in @page */
 
     body, html { background: white !important; background-color: white !important; color: #000 !important; font-size: 8pt; margin: 0; -webkit-print-color-adjust: exact !important; color-scheme: light !important; }
+
+    /* Global dark mode reset for print — force black text on white */
+    [data-theme="dark"] * {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+      background-color: transparent !important;
+    }
+    [data-theme="dark"] body,
+    [data-theme="dark"] html { background: white !important; }
+    [data-theme="dark"] td, [data-theme="dark"] th { border-color: #ccc !important; }
+    [data-theme="dark"] tr.weekend td { background: #fdf0ee !important; }
+    [data-theme="dark"] tr.weekend td:first-child,
+    [data-theme="dark"] td.weekend-marker {
+      color: #c0392b !important;
+      -webkit-text-fill-color: #c0392b !important;
+      background: #fdf0ee !important;
+    }
+
+
+    /* Global dark mode reset for print — force everything to black on white */
+    [data-theme="dark"] * {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+      background-color: transparent !important;
+    }
+    [data-theme="dark"] body,
+    [data-theme="dark"] html {
+      background: white !important;
+      background-color: white !important;
+    }
+    [data-theme="dark"] td,
+    [data-theme="dark"] th { border-color: #ccc !important; }
+    [data-theme="dark"] tr.weekend td { background: #fdf0ee !important; }
+    [data-theme="dark"] tr.weekend td:first-child { color: #c0392b !important; -webkit-text-fill-color: #c0392b !important; }
+    [data-theme="dark"] td.weekend-marker { background: #fdf0ee !important; color: #c0392b !important; -webkit-text-fill-color: #c0392b !important; }
     .sidebar, header, .add-row-btn, .del-btn, .toast { display: none !important; }
     .layout { display: block !important; }
 
