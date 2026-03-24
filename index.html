@@ -246,6 +246,25 @@
   .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--sage); color: white; padding: 0.75rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 100; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateY(0); }
 
+  /* Pracovní dny selector */
+  .dni-wrap { display: flex; flex-direction: column; gap: 0.35rem; }
+  .dni-grid { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .dni-item { display: inline-flex; align-items: center; cursor: pointer; user-select: none; }
+  .dni-wide { width: 100%; }
+  .dni-item input[type="checkbox"] { display: none; }
+  .dni-item span {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 5px; padding: 0.3rem 0.65rem;
+    font-size: 0.75rem; font-weight: 500; color: var(--muted);
+    transition: all 0.15s; line-height: 1; white-space: nowrap; height: 28px;
+  }
+  .dni-wide span { width: 100%; justify-content: center; }
+  .dni-item input:checked + span {
+    background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 600;
+  }
+
+
   /* ===== RESPONSIVE ===== */
 
   /* Tablet — collapse sidebar on top */
@@ -321,6 +340,7 @@
 
     .toast { bottom: 1rem; right: 1rem; left: 1rem; text-align: center; }
   }
+
 
   /* ===== RESPONSIVE ===== */
 
@@ -572,6 +592,19 @@
       <input autocomplete="off" type="number" id="rok" value="2026" min="2020" max="2040">
       <label>Denní úvazek (hodin)</label>
       <input autocomplete="off" type="number" id="denni-uvazek" value="8" step="0.5" min="0" max="24" placeholder="8">
+      <label>Pracovní dny</label>
+      <div class="dni-wrap">
+        <div class="dni-grid">
+          <label class="dni-item dni-wide"><input type="checkbox" id="den-all" checked onchange="toggleAllDays(this)"><span>Všechny pracovní dny</span></label>
+        </div>
+        <div class="dni-grid">
+          <label class="dni-item"><input type="checkbox" class="den-cb" value="1" checked><span>Po</span></label>
+          <label class="dni-item"><input type="checkbox" class="den-cb" value="2" checked><span>Út</span></label>
+          <label class="dni-item"><input type="checkbox" class="den-cb" value="3" checked><span>St</span></label>
+          <label class="dni-item"><input type="checkbox" class="den-cb" value="4" checked><span>Čt</span></label>
+          <label class="dni-item"><input type="checkbox" class="den-cb" value="5" checked><span>Pá</span></label>
+        </div>
+      </div>
       <button class="btn btn-primary" onclick="generateTable()" style="margin-top:1rem">Vygenerovat výkaz</button>
     </div>
 
@@ -672,6 +705,25 @@ const POZICE_CONFIG = {
   speciped: { label: 'Speciální pedagog/pedagožka',   sup: false, nahrada: false },
 };
 
+function toggleAllDays(cb) {
+  const checked = cb.checked;
+  document.querySelectorAll('.den-cb').forEach(c => c.checked = checked);
+  document.getElementById('dni-grid').style.opacity = checked ? '1' : '0.45';
+}
+
+function syncAllDaysCheckbox() {
+  const cbs = document.querySelectorAll('.den-cb');
+  const allChecked = [...cbs].every(c => c.checked);
+  document.getElementById('den-all').checked = allChecked;
+}
+
+// Wire individual day checkboxes to sync the "all" checkbox
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.den-cb').forEach(cb => {
+    cb.addEventListener('change', syncAllDaysCheckbox);
+  });
+});
+
 function onPoziceChange() {
   // If table already generated, regenerate
   if (document.getElementById('hodiny-body')) generateTable();
@@ -694,6 +746,11 @@ function generateTable() {
   const rok = parseInt(document.getElementById('rok').value);
   const uvazek = parseFloat(document.getElementById('denni-uvazek').value);
   const pozice = document.getElementById('pozice').value;
+  // Get selected work days (1=Mon … 5=Fri)
+  const selectedDays = new Set(
+    [...document.querySelectorAll('.den-cb:checked')].map(cb => parseInt(cb.value))
+  );
+  if (selectedDays.size === 0) { showToast('⚠ Vyberte alespoň jeden pracovní den'); return; }
   const cfg = POZICE_CONFIG[pozice];
   const days = getDaysInMonth(mesic, rok);
 
@@ -820,7 +877,9 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
         <td class="weekend-marker" colspan="${colspanNonWork}">${(date.getDay()===0||date.getDay()===6)?'víkend':'státní svátek'}</td>
       `;
     } else {
-      const defH = (!isNaN(uvazek) && uvazek > 0) ? uvazek : '';
+      // getDay() returns 0=Sun,1=Mon…5=Fri,6=Sat; we stored 1-5 for Mon-Fri
+      const isWorkDay = selectedDays.has(date.getDay());
+      const defH = (isWorkDay && !isNaN(uvazek) && uvazek > 0) ? uvazek : '';
       const tdSup     = cfg.sup     ? `<td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-sup" data-day="${d}" oninput="updateStats()"></td>` : '';
       const tdNahrada = cfg.nahrada ? `<td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-nahrada" data-day="${d}"></td>` : '';
 
