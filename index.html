@@ -2,7 +2,9 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f0e8" media="(prefers-color-scheme: light)">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Výkaz evidence pracovní doby</title>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..900&family=Google+Sans+Mono&display=swap" rel="stylesheet">
@@ -374,6 +376,14 @@
   [data-theme="dark"] #theme-toggle { border-color: rgba(255,255,255,0.15); }
   [data-theme="dark"] #theme-toggle:hover { background: rgba(255,255,255,0.08); }
 
+  /* Table header text in dark mode — always white */
+  [data-theme="dark"] th {
+    color: #ffffff !important;
+  }
+
+  /* Table header text in dark mode — always white */
+  [data-theme="dark"] th { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+
   /* Section title line in dark mode */
   [data-theme="dark"] .section-title::after { background: var(--border); }
   [data-theme="dark"] .section-title { color: var(--muted); }
@@ -527,6 +537,11 @@
   [data-theme="dark"] .dni-item input:checked + span { background: #4a7fb5; border-color: #4a7fb5; color: #fff; }
   [data-theme="dark"] #theme-toggle { border-color: rgba(255,255,255,0.15); }
   [data-theme="dark"] #theme-toggle:hover { background: rgba(255,255,255,0.08); }
+
+  /* Table header text in dark mode — always white */
+  [data-theme="dark"] th {
+    color: #ffffff !important;
+  }
 
   /* Section title line in dark mode */
   [data-theme="dark"] .section-title::after { background: var(--border); }
@@ -1273,18 +1288,19 @@ function makeDateCell(onChangeCb) {
   inp.style.cssText = 'position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;pointer-events:none;';
   inp.tabIndex = -1;
 
-  // Click on display → open calendar
-  display.addEventListener('click', () => {
-    try {
-      inp.showPicker();
-    } catch(e) {
-      inp.style.cssText = 'position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;cursor:pointer;';
-      inp.click();
-      setTimeout(() => {
-        inp.style.cssText = 'position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;pointer-events:none;';
-      }, 500);
-    }
-  });
+  // iOS Safari requires the input to be visible + user-interactable
+  // We overlay the transparent input over the display div permanently
+  inp.style.cssText = [
+    'position:absolute',
+    'top:0', 'left:0',
+    'width:100%', 'height:100%',
+    'opacity:0',
+    'cursor:pointer',
+    'z-index:1',
+    '-webkit-appearance:none',
+    'font-size:16px', // prevent iOS zoom
+  ].join(';');
+  inp.removeAttribute('tabIndex');
 
   // When date selected → format as "DD. MM." and update display
   inp.addEventListener('change', () => {
