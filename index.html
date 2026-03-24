@@ -430,6 +430,17 @@ function onPoziceChange() {
 
 function generateTable() {
   const jmeno = document.getElementById('jmeno').value.trim();
+  if (!jmeno) {
+    const inp = document.getElementById('jmeno');
+    inp.style.borderColor = 'var(--rust)';
+    inp.style.boxShadow = '0 0 0 3px rgba(192,57,43,0.2)';
+    inp.focus();
+    inp.placeholder = 'Povinné pole — zadejte jméno';
+    showToast('⚠ Zadejte prosím jméno zaměstnance');
+    return;
+  }
+  document.getElementById('jmeno').style.borderColor = '';
+  document.getElementById('jmeno').style.boxShadow = '';
   const mesic = parseInt(document.getElementById('mesic').value);
   const rok = parseInt(document.getElementById('rok').value);
   const uvazek = parseFloat(document.getElementById('denni-uvazek').value);
@@ -870,6 +881,11 @@ function showToast(msg) {
   const now = new Date();
   document.getElementById('mesic').value = now.getMonth()+1;
   document.getElementById('rok').value = now.getFullYear();
+  document.getElementById('jmeno').addEventListener('input', function() {
+    this.style.borderColor = '';
+    this.style.boxShadow = '';
+    this.placeholder = 'Mgr. Jana Nováková';
+  });
 
 
 })();
@@ -955,6 +971,11 @@ window.addEventListener('beforeprint', () => {
 // Override window.print to scale first
 const _origPrint = window.print.bind(window);
 window.print = function() {
+  const jmeno = document.getElementById('jmeno')?.value?.trim();
+  if (!jmeno || !document.getElementById('hodiny-body')) {
+    showToast('⚠ Nejprve vygenerujte výkaz se jménem zaměstnance');
+    return;
+  }
   setAutoDatum();
   scaleForPrint();
   setTimeout(_origPrint, 80);
