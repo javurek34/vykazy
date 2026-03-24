@@ -23,6 +23,39 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* PSPP section */
+  .pspp-page-block {
+    background: linear-gradient(135deg, #1a1a2e 0%, #2358A6 100%);
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    color: white;
+    box-shadow: 0 4px 24px rgba(35,88,166,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .pspp-page-inner { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+  .pspp-page-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.7; font-family: 'Google Sans Mono', monospace; }
+  .pspp-page-title { font-size: 5rem; font-weight: 900; letter-spacing: 0.08em; opacity: 0.08; font-family: 'Google Sans Flex', sans-serif; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: white; user-select: none; }
+  .pspp-page-value-row { display: flex; align-items: center; gap: 1.5rem; margin-top: 0.75rem; }
+  .pspp-page-caption { font-size: 0.95rem; font-weight: 500; opacity: 0.9; }
+  .pspp-page-number-wrap { display: flex; align-items: baseline; gap: 0.5rem; background: rgba(255,255,255,0.12); border-radius: 8px; padding: 0.4rem 1rem; }
+  .pspp-page-input {
+    background: transparent; border: none; outline: none;
+    font-size: 2.5rem; font-weight: 900; color: white;
+    font-family: 'Google Sans Flex', sans-serif;
+    width: 120px; text-align: center;
+    -moz-appearance: textfield;
+  }
+  .pspp-page-input::-webkit-outer-spin-button,
+  .pspp-page-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .pspp-page-input::placeholder { opacity: 0.35; }
+  .pspp-page-unit { font-size: 1rem; opacity: 0.7; font-family: 'Google Sans Mono', monospace; color: white; }
+
+
   .pspp-box {
     background: var(--cream);
     border: 1px solid var(--border);
@@ -46,11 +79,23 @@
 
   /* Print PSPP */
   @media print {
-    .pspp-box { background: #f8f8f8 !important; border: 0.5pt solid #ccc !important; padding: 6pt 8pt; margin-bottom: 10pt; }
-    .pspp-label { font-size: 8pt; }
-    .pspp-input { font-size: 9pt; width: 50pt; border: none; background: transparent !important; -webkit-appearance: none; appearance: none; font-weight: 700; }
-    .pspp-unit { font-size: 7pt; }
-    .pspp-warning { display: none !important; }
+    /* PSPP print block */
+    .pspp-page-block {
+      background: #1a1a2e !important;
+      border-radius: 6pt;
+      padding: 16pt 18pt;
+      margin-bottom: 14pt;
+      display: flex !important;
+      align-items: center;
+      color: white !important;
+    }
+    .pspp-page-label { font-size: 7pt !important; color: rgba(255,255,255,0.65) !important; letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Google Sans Mono', monospace; margin-bottom: 4pt; display: block; }
+    .pspp-page-caption { font-size: 11pt !important; color: white !important; font-weight: 500; }
+    .pspp-page-value-row { display: flex; align-items: center; gap: 10pt; margin-top: 6pt; }
+    .pspp-page-number-wrap { background: rgba(255,255,255,0.15) !important; border-radius: 4pt; padding: 3pt 10pt; display: flex; align-items: baseline; gap: 4pt; }
+    .pspp-page-input { font-size: 30pt !important; font-weight: 900 !important; color: white !important; background: transparent !important; border: none !important; width: 70pt; text-align: center; -webkit-appearance: none; appearance: none; font-family: 'Google Sans Flex', sans-serif; }
+    .pspp-page-unit { font-size: 10pt !important; color: rgba(255,255,255,0.65) !important; }
+    .pspp-page-title { display: none !important; }
   }
 
   /* Select in sup table rows */
@@ -576,14 +621,23 @@ function isSvatek(d) { return STATNI_SVATKY.some(([m,dd]) => d.getMonth()+1===m 
 function isNonWorking(d) { return isWeekend(d)||isSvatek(d); }
 function getDaysInMonth(m,y) { return new Date(y,m,0).getDate(); }
 
-function psppHtml() {
+function psppHtml() { return ''; } // placeholder — screen uses psppPageHtml
+
+function psppPageHtml() {
+  // Screen: compact card above the rest of page 2
+  // Print: full-page styled block on page 2
   return [
-    '<div class="section-title">Speciálně pedagogická podpora (PSPP)</div>',
-    '<div class="pspp-box">',
-    '<div class="pspp-row">',
-    '<span class="pspp-label">Celkový počet hodin PSPP:</span>',
-    '<input type="number" id="pspp-hodiny" class="pspp-input" min="0" step="0.5" placeholder="0" autocomplete="off">',
-    '<span class="pspp-unit">hod</span>',
+    '<div class="pspp-page-block">',
+    '<div class="pspp-page-inner">',
+    '<div class="pspp-page-label">Speciálně pedagogická podpora</div>',
+    '<div class="pspp-page-title">PSPP</div>',
+    '<div class="pspp-page-value-row">',
+    '<span class="pspp-page-caption">Celkový počet hodin</span>',
+    '<div class="pspp-page-number-wrap">',
+    '<input type="number" id="pspp-hodiny" class="pspp-page-input" min="0" step="0.5" placeholder="—" autocomplete="off">',
+    '<span class="pspp-page-unit">hod</span>',
+    '</div>',
+    '</div>',
     '</div>',
     '</div>',
   ].join('');
@@ -678,6 +732,7 @@ function generateTable() {
 
     <!-- PAGE 2: suplování + overtime + podpisy -->
     <div class="print-page2">
+      ${pozice === 'speciped' ? psppPageHtml() : ''}
       <!-- Mini header repeated on page 2 (only visible in print) -->
       <div class="print-page2-header" style="display:none">
         <div class="p2-title">Výkaz — ${MESICE[mesic]} ${rok} &nbsp;|&nbsp; ${jmeno||'—'} &nbsp;·&nbsp; ${cfg.label}</div>
@@ -733,8 +788,6 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
       <button class="add-row-btn" onclick="addAkceRow()">＋ Přidat školní akci</button>` : ''}
 
       ${pozice === 'ucitel' ? parlamentHtml() : ''}
-      ${pozice === 'speciped' ? psppHtml() : ''}
-
       <div class="podpisy">
         <div class="podpis-box">
           <div class="podpis-line" style="display:flex;align-items:flex-end;padding-bottom:2px;">
