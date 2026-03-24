@@ -1735,36 +1735,37 @@ function scaleForPrint() {
   const table = document.getElementById('hodiny-table');
   if (!table) return;
 
-  const rows = table.querySelector('tbody').querySelectorAll('tr');
-  const rowCount = rows.length;
+  const rowCount = table.querySelector('tbody').querySelectorAll('tr').length;
 
-  // A4 portrait: 297mm - 20mm margins = 277mm = 785pt
-  // Subtract: main-header (~65pt) + employee-name (~22pt) + section-title (~14pt) + thead (~20pt)
-  const AVAIL_PT = 785 - 65 - 22 - 14 - 20;
-
-  // Ideal row height — no upper cap so rows truly fill the page
-  const rowH = Math.max(8, AVAIL_PT / rowCount);
-
-  // Font scales with row height
-  const fontSize = Math.min(10, Math.max(6, rowH * 0.60));
-  const inputH = rowH - 1;
+  // A4 portrait usable height in px at 96dpi: (297-20)mm * 3.7795 ≈ 1047px
+  // Subtract header estimate in px
+  const PAGE_PX = 1047;
+  const HEADER_PX = 130; // main-header + employee-name + section-title + thead
+  const AVAIL_PX = PAGE_PX - HEADER_PX;
+  const rowH_px = Math.max(18, AVAIL_PX / rowCount);
+  const fontSize_px = Math.min(13, Math.max(9, rowH_px * 0.58));
 
   const styleEl = document.getElementById('print-scale') || document.createElement('style');
   styleEl.id = 'print-scale';
   styleEl.textContent = `
     @media print {
-      #hodiny-table td {
-        height: ${rowH.toFixed(1)}pt !important;
-        max-height: ${rowH.toFixed(1)}pt !important;
+      #hodiny-table {
+        table-layout: fixed;
       }
-      #hodiny-table td:first-child {
-        font-size: ${fontSize.toFixed(1)}pt !important;
+      #hodiny-table td {
+        height: ${rowH_px.toFixed(1)}px !important;
+        max-height: ${rowH_px.toFixed(1)}px !important;
+        overflow: hidden;
+      }
+      #hodiny-table td:first-child,
+      #hodiny-table td input,
+      #hodiny-table td select.nemoc-sel {
+        font-size: ${fontSize_px.toFixed(1)}px !important;
       }
       #hodiny-table td input,
       #hodiny-table td select.nemoc-sel {
-        font-size: ${fontSize.toFixed(1)}pt !important;
-        height: ${inputH.toFixed(1)}pt !important;
-        line-height: ${inputH.toFixed(1)}pt !important;
+        height: ${(rowH_px - 2).toFixed(1)}px !important;
+        line-height: ${(rowH_px - 2).toFixed(1)}px !important;
       }
     }
   `;
