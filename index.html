@@ -1300,7 +1300,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
 
     if (nonWork) {
       tr.innerHTML = `
-        <td>${d}. ${dayName}${svatek?' 🎌':''}</td>
+        <td style="width:38pt;max-width:38pt;min-width:0;overflow:hidden">${d}. ${dayName}${svatek?' 🎌':''}</td>
         <td class="weekend-marker" colspan="${colspanNonWork}">${(date.getDay()===0||date.getDay()===6)?'víkend':'státní svátek'}</td>
       `;
     } else {
@@ -1311,7 +1311,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
       const tdNahrada = cfg.nahrada ? `<td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-nahrada" data-day="${d}"></td>` : '';
 
       tr.innerHTML = `
-        <td>${d}. ${dayName}</td>
+        <td style="width:38pt;max-width:38pt;min-width:0;overflow:hidden">${d}. ${dayName}</td>
         <td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-hodiny" data-day="${d}" value="${defH}" oninput="updateStats()"></td>
         ${tdSup}
         ${tdNahrada}
