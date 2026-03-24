@@ -745,8 +745,11 @@
     }
 
     #hodiny-table tr.weekend td { background: #fdf0ee !important; }
-    #hodiny-table tr.weekend td:first-child { color: #c0392b !important; font-weight: 600; }
-    #hodiny-table td.weekend-marker { background: #fdf0ee !important; font-size: 6pt; text-align: center; padding: 0 2pt; }
+    #hodiny-table tr.weekend td:first-child { color: #c0392b !important; -webkit-text-fill-color: #c0392b !important; font-weight: 600; }
+    [data-theme="dark"] #hodiny-table tr.weekend td { background: #fdf0ee !important; }
+    [data-theme="dark"] #hodiny-table tr.weekend td:first-child { color: #c0392b !important; -webkit-text-fill-color: #c0392b !important; }
+    #hodiny-table td.weekend-marker { background: #fdf0ee !important; font-size: 6pt; text-align: center; padding: 0 2pt; color: #c0392b !important; -webkit-text-fill-color: #c0392b !important; }
+    [data-theme="dark"] #hodiny-table td.weekend-marker { background: #fdf0ee !important; color: #c0392b !important; -webkit-text-fill-color: #c0392b !important; }
     #hodiny-table td select.nemoc-sel.set { color: #c0392b !important; font-weight: 700; }
 
     .section-title-hodiny {
