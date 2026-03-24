@@ -148,6 +148,16 @@
 
   /* Contenteditable cells in sup/overtime tables */
   .ce-cell { cursor: text; }
+  .date-display { cursor: pointer !important; }
+  .date-display:empty::before,
+  .date-display:not(:empty):not([data-has-value])::before { }
+  .date-display::after {
+    content: ' 📅';
+    font-size: 0.65em;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .date-display:hover::after { opacity: 0.5; }
   .ce-cell:empty::before {
     content: attr(data-placeholder);
     color: #bbb;
@@ -1166,6 +1176,62 @@ function updateStats() {
   document.getElementById('stat-jine').textContent = jineCount;
 }
 
+// ── DATE PICKER CELL ─────────────────────────────────────────────────────
+// Creates a td with a clickable date cell that opens a native calendar
+// pre-navigated to the selected month/year.
+function makeDateCell(onChangeCb) {
+  const mesic = parseInt(document.getElementById('mesic')?.value) || new Date().getMonth()+1;
+  const rok   = parseInt(document.getElementById('rok')?.value)   || new Date().getFullYear();
+  const mm = String(mesic).padStart(2,'0');
+  const minDate = `${rok}-${mm}-01`;
+  const maxDate = `${rok}-${mm}-${new Date(rok, mesic, 0).getDate()}`;
+
+  const td = document.createElement('td');
+  td.style.cssText = 'position:relative;padding:0;';
+
+  // Visible display div
+  const display = document.createElement('div');
+  display.className = 'ce-cell date-display';
+  display.dataset.placeholder = `1. ${mesic}.`;
+  display.style.cssText = 'text-align:center;min-height:1em;outline:none;padding:0.3rem 0.4rem;width:100%;box-sizing:border-box;cursor:pointer;';
+  display.title = 'Klikněte pro výběr data';
+
+  // Hidden native date input
+  const inp = document.createElement('input');
+  inp.type = 'date';
+  inp.min = minDate;
+  inp.max = maxDate;
+  inp.value = minDate; // pre-navigate calendar to correct month
+  inp.style.cssText = 'position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;pointer-events:none;';
+  inp.tabIndex = -1;
+
+  // Click on display → open calendar
+  display.addEventListener('click', () => {
+    try {
+      inp.showPicker();
+    } catch(e) {
+      inp.style.cssText = 'position:absolute;opacity:0;width:100%;height:100%;top:0;left:0;cursor:pointer;';
+      inp.click();
+      setTimeout(() => {
+        inp.style.cssText = 'position:absolute;opacity:0;width:1px;height:1px;top:0;left:0;pointer-events:none;';
+      }, 500);
+    }
+  });
+
+  // When date selected → format as "DD. MM." and update display
+  inp.addEventListener('change', () => {
+    if (!inp.value) return;
+    const [y, m, d] = inp.value.split('-');
+    display.textContent = `${parseInt(d)}. ${parseInt(m)}.`;
+    display.classList.remove('empty');
+    if (onChangeCb) onChangeCb(display.textContent);
+  });
+
+  td.appendChild(display);
+  td.appendChild(inp);
+  return { td, display };
+}
+
 function addSupRow() {
   const id = Date.now();
   const tr = document.createElement('tr');
@@ -1182,7 +1248,7 @@ function addSupRow() {
     return d;
   };
 
-  const tdDate   = document.createElement('td'); tdDate.appendChild(ce('1. 3.'));
+  const { td: tdDate, display: dateDisplay } = makeDateCell(() => syncSuplování());
   const tdPred   = document.createElement('td'); tdPred.appendChild(ce('Matematika','left'));
   const tdTrida  = document.createElement('td'); tdTrida.appendChild(ce('7.A'));
   const tdZaKoho = document.createElement('td'); tdZaKoho.appendChild(ce('Mgr. Novák','left'));
@@ -1197,8 +1263,7 @@ function addSupRow() {
   tr.append(tdDate, tdPred, tdTrida, tdZaKoho, tdType, tdUprav, tdDel);
   document.getElementById('sup-body').appendChild(tr);
 
-  // Wire sync on date and type changes
-  tdDate.querySelector('.ce-cell').addEventListener('input', syncSuplování);
+  // Wire sync on type changes (date sync wired via makeDateCell callback)
   tdType.querySelector('select').addEventListener('change', syncSuplování);
 }
 
@@ -1218,8 +1283,7 @@ function addOvertimeRow() {
     return d;
   };
 
-  const tdDate = document.createElement('td');
-  tdDate.appendChild(ce('1. 3.'));
+  const { td: tdDate } = makeDateCell();
 
   if (isDruzina) {
     // Za koho column
@@ -1310,7 +1374,7 @@ function addAkceRow() {
     return d;
   };
 
-  const tdDate  = document.createElement('td'); tdDate.appendChild(ce('1. 3.'));
+  const { td: tdDate } = makeDateCell();
 
   const tdOd = document.createElement('td');
   const inOd = ce('14:00');
@@ -1361,7 +1425,7 @@ function syncSuplování() {
   // Build count map: { dayNumber: { sup: N, nah: N } }
   const counts = {};
   supBody.querySelectorAll('tr').forEach(tr => {
-    const dateText = tr.querySelector('.ce-cell')?.textContent?.trim() || '';
+    const dateText = (tr.querySelector('.date-display') || tr.querySelector('.ce-cell'))?.textContent?.trim() || '';
     const dayMatch = dateText.match(/^(\d{1,2})/);
     if (!dayMatch) return;
     const day = parseInt(dayMatch[1]);
@@ -1404,7 +1468,7 @@ function addParlamentRow() {
     return d;
   };
 
-  const tdDate  = document.createElement('td'); tdDate.appendChild(ce('1. 3.'));
+  const { td: tdDate } = makeDateCell();
 
   const tdOd = document.createElement('td');
   const inOd = ce('14:00');
