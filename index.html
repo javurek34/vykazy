@@ -708,7 +708,10 @@ const POZICE_CONFIG = {
 function toggleAllDays(cb) {
   const checked = cb.checked;
   document.querySelectorAll('.den-cb').forEach(c => c.checked = checked);
-  document.getElementById('dni-grid').style.opacity = checked ? '1' : '0.45';
+  document.querySelectorAll('.den-cb').forEach(c => {
+    const chip = c.closest('.dni-item');
+    if (chip) chip.style.opacity = checked ? '1' : '0.6';
+  });
 }
 
 function syncAllDaysCheckbox() {
