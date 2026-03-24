@@ -799,7 +799,7 @@
     /* ---- HOURS TABLE — splits naturally across pages 1–2 ---- */
     #hodiny-table {
       width: 100%;
-      table-layout: auto;
+      table-layout: fixed;
       border-collapse: collapse;
       font-size: 7pt;
       margin-bottom: 0;
@@ -821,7 +821,7 @@
       white-space: normal;
       line-height: 1.2;
     }
-    #hodiny-table th:first-child { text-align: left; width: auto; white-space: nowrap; }
+    #hodiny-table th:first-child { text-align: left; width: 44pt; white-space: nowrap; }
     /* column widths tuned for 190mm portrait */
     #hodiny-table th:nth-child(2) { width: 30pt; }
     #hodiny-table th:nth-child(3) { width: 30pt; }
@@ -842,7 +842,7 @@
       font-family: 'Google Sans Mono', monospace;
       border-right: 0.5pt solid #bbb;
       white-space: nowrap;
-      width: 1%;
+      width: 44pt;
     }
 
     #hodiny-table td input[type="text"],
