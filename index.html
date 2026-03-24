@@ -24,7 +24,7 @@
 
   /* PSPP section */
   .pspp-page-block {
-    background: linear-gradient(135deg, #1a1a2e 0%, #2358A6 100%);
+    background: #1a1a2e;
     border-radius: 12px;
     padding: 2.5rem 2rem;
     margin-bottom: 1.5rem;
@@ -33,7 +33,7 @@
     justify-content: space-between;
     gap: 2rem;
     color: white;
-    box-shadow: 0 4px 24px rgba(35,88,166,0.25);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
     position: relative;
     overflow: hidden;
   }
@@ -42,7 +42,7 @@
   .pspp-page-title { font-size: 5rem; font-weight: 900; letter-spacing: 0.08em; opacity: 0.08; font-family: 'Google Sans Flex', sans-serif; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: white; user-select: none; }
   .pspp-page-value-row { display: flex; align-items: center; gap: 1.5rem; margin-top: 0.75rem; }
   .pspp-page-caption { font-size: 0.95rem; font-weight: 500; opacity: 0.9; }
-  .pspp-page-number-wrap { display: flex; align-items: baseline; gap: 0.5rem; background: rgba(255,255,255,0.12); border-radius: 8px; padding: 0.4rem 1rem; }
+  .pspp-page-number-wrap { display: flex; align-items: baseline; gap: 0.5rem; background: rgba(255,255,255,0.15); border-radius: 8px; padding: 0.4rem 1rem; border: 1px solid rgba(255,255,255,0.2); }
   .pspp-page-input {
     background: transparent; border: none; outline: none;
     font-size: 2.5rem; font-weight: 900; color: white;
@@ -79,22 +79,24 @@
 
   /* Print PSPP */
   @media print {
-    /* PSPP print block */
+    /* PSPP print block — black & white optimised */
     .pspp-page-block {
-      background: #1a1a2e !important;
+      background: #e8e8e8 !important;
+      border: 1.5pt solid #999 !important;
       border-radius: 6pt;
-      padding: 16pt 18pt;
+      padding: 14pt 18pt;
       margin-bottom: 14pt;
       display: flex !important;
       align-items: center;
-      color: white !important;
+      color: #000 !important;
+      box-shadow: none !important;
     }
-    .pspp-page-label { font-size: 7pt !important; color: rgba(255,255,255,0.65) !important; letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Google Sans Mono', monospace; margin-bottom: 4pt; display: block; }
-    .pspp-page-caption { font-size: 11pt !important; color: white !important; font-weight: 500; }
+    .pspp-page-label { font-size: 7pt !important; color: #555 !important; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'Google Sans Mono', monospace; margin-bottom: 3pt; display: block; }
+    .pspp-page-caption { font-size: 11pt !important; color: #000 !important; font-weight: 600; }
     .pspp-page-value-row { display: flex; align-items: center; gap: 10pt; margin-top: 6pt; }
-    .pspp-page-number-wrap { background: rgba(255,255,255,0.15) !important; border-radius: 4pt; padding: 3pt 10pt; display: flex; align-items: baseline; gap: 4pt; }
-    .pspp-page-input { font-size: 30pt !important; font-weight: 900 !important; color: white !important; background: transparent !important; border: none !important; width: 70pt; text-align: center; -webkit-appearance: none; appearance: none; font-family: 'Google Sans Flex', sans-serif; }
-    .pspp-page-unit { font-size: 10pt !important; color: rgba(255,255,255,0.65) !important; }
+    .pspp-page-number-wrap { background: transparent !important; border: 1.5pt solid #1a1a2e !important; border-radius: 4pt; padding: 2pt 10pt; display: flex; align-items: baseline; gap: 4pt; }
+    .pspp-page-input { font-size: 30pt !important; font-weight: 900 !important; color: #000 !important; background: transparent !important; border: none !important; width: 70pt; text-align: center; -webkit-appearance: none; appearance: none; font-family: 'Google Sans Flex', sans-serif; }
+    .pspp-page-unit { font-size: 10pt !important; color: #555 !important; }
     .pspp-page-title { display: none !important; }
   }
 
