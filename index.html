@@ -22,6 +22,37 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* PSPP section */
+  .pspp-box {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    max-width: 480px;
+  }
+  .pspp-row { display: flex; align-items: center; gap: 0.75rem; }
+  .pspp-label { font-size: 0.82rem; color: var(--ink); flex: 1; font-weight: 500; }
+  .pspp-input {
+    width: 80px; text-align: center;
+    background: var(--paper); border: 1px solid var(--border); border-radius: 4px;
+    padding: 0.4rem 0.5rem; font-family: 'Google Sans Mono', monospace;
+    font-size: 0.9rem; font-weight: 600; color: var(--ink); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .pspp-input:focus { border-color: var(--rust); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
+  .pspp-unit { font-size: 0.78rem; color: var(--muted); font-family: 'Google Sans Mono', monospace; }
+  .pspp-warning { margin-top: 0.75rem; font-size: 0.78rem; color: var(--rust); font-weight: 500; }
+
+  /* Print PSPP */
+  @media print {
+    .pspp-box { background: #f8f8f8 !important; border: 0.5pt solid #ccc !important; padding: 6pt 8pt; margin-bottom: 10pt; }
+    .pspp-label { font-size: 8pt; }
+    .pspp-input { font-size: 9pt; width: 50pt; border: none; background: transparent !important; -webkit-appearance: none; appearance: none; font-weight: 700; }
+    .pspp-unit { font-size: 7pt; }
+    .pspp-warning { display: none !important; }
+  }
+
   /* Select in sup table rows */
   .sup-type-sel {
     width: 100%;
@@ -348,6 +379,7 @@
         <option value="druzina">Školní družina</option>
         <option value="asistent">Asistent/ka pedagoga</option>
         <option value="neped">Nepedagogický pracovník</option>
+        <option value="speciped">Speciální pedagog/pedagožka</option>
       </select>
       <label>Jméno zaměstnance</label>
       <input autocomplete="off" type="text" id="jmeno" placeholder="Mgr. Jana Nováková">
@@ -415,6 +447,19 @@ function isSvatek(d) { return STATNI_SVATKY.some(([m,dd]) => d.getMonth()+1===m 
 function isNonWorking(d) { return isWeekend(d)||isSvatek(d); }
 function getDaysInMonth(m,y) { return new Date(y,m,0).getDate(); }
 
+function psppHtml() {
+  return [
+    '<div class="section-title">Speciálně pedagogická podpora (PSPP)</div>',
+    '<div class="pspp-box">',
+    '<div class="pspp-row">',
+    '<span class="pspp-label">Celkový počet hodin PSPP:</span>',
+    '<input type="number" id="pspp-hodiny" class="pspp-input" min="0" step="0.5" placeholder="0" autocomplete="off">',
+    '<span class="pspp-unit">hod</span>',
+    '</div>',
+    '</div>',
+  ].join('');
+}
+
 function parlamentHtml() {
   return [
     '<div class="section-title">Parlament / Kroužky</div>',
@@ -435,10 +480,11 @@ function parlamentHtml() {
 
 // Pozice config: which columns are shown
 const POZICE_CONFIG = {
-  ucitel:   { label: 'Učitel/ka',                sup: true,  nahrada: true  },
-  druzina:  { label: 'Školní družina',            sup: false, nahrada: false },
-  asistent: { label: 'Asistent/ka pedagoga',      sup: true,  nahrada: true  },
-  neped:    { label: 'Nepedagogický pracovník',   sup: false, nahrada: false },
+  ucitel:   { label: 'Učitel/ka',                     sup: true,  nahrada: true  },
+  druzina:  { label: 'Školní družina',                 sup: false, nahrada: false },
+  asistent: { label: 'Asistent/ka pedagoga',           sup: true,  nahrada: true  },
+  neped:    { label: 'Nepedagogický pracovník',        sup: false, nahrada: false },
+  speciped: { label: 'Speciální pedagog/pedagožka',   sup: false, nahrada: false },
 };
 
 function onPoziceChange() {
@@ -526,7 +572,7 @@ function generateTable() {
       <button class="add-row-btn" onclick="addSupRow()">＋ Přidat řádek</button>
       ` : ''}
 
-      ${pozice !== 'neped' ? `
+      ${(pozice !== 'neped' && pozice !== 'speciped') ? `
       <div class="section-title">Přesčasy / Přehledy služeb ve školní družině</div>
       <table class="overtime-table">
         <thead><tr>
@@ -543,7 +589,7 @@ function generateTable() {
       <button class="add-row-btn" onclick="addOvertimeRow()">＋ Přidat záznam služby</button>
       ` : ''}
 
-      <div class="section-title">Přesčasy — školní akce</div>
+${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — školní akce</div>
       <table class="overtime-table" id="skolni-akce-table">
         <thead><tr>
           <th style="width:80px">Datum</th>
@@ -555,9 +601,10 @@ function generateTable() {
         </tr></thead>
         <tbody id="akce-body"></tbody>
       </table>
-      <button class="add-row-btn" onclick="addAkceRow()">＋ Přidat školní akci</button>
+      <button class="add-row-btn" onclick="addAkceRow()">＋ Přidat školní akci</button>` : ''}
 
       ${pozice === 'ucitel' ? parlamentHtml() : ''}
+      ${pozice === 'speciped' ? psppHtml() : ''}
 
       <div class="podpisy">
         <div class="podpis-box">
