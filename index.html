@@ -798,13 +798,14 @@
 
     /* ---- HOURS TABLE — splits naturally across pages 1–2 ---- */
     #hodiny-table {
-      width: 100%;
-      table-layout: fixed;
+      width: 190mm !important;
+      table-layout: fixed !important;
       border-collapse: collapse;
       font-size: 7pt;
       margin-bottom: 0;
       page-break-after: always;
     }
+    #hodiny-table col:first-child { width: 38pt !important; }
 
     /* Repeat header on every page */
     #hodiny-table thead { display: table-header-group; }
@@ -1196,6 +1197,14 @@ function generateTable() {
 
     <div class="section-title section-title-hodiny">Denní přehled hodin</div>
     <table id="hodiny-table">
+      <colgroup>
+        <col style="width:38pt">
+        <col style="width:30pt">
+        ${cfg.sup ? '<col style="width:30pt">' : ''}
+        ${cfg.nahrada ? '<col style="width:28pt">' : ''}
+        <col style="width:36pt">
+        <col>
+      </colgroup>
       <thead><tr>
         <th style="text-align:left">Datum</th>
         <th>Počet hodin</th>
