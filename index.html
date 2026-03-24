@@ -137,7 +137,7 @@
   .legend-item { display: flex; align-items: center; gap: 0.5rem; }
   .legend-dot { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
 
-  .main { padding: 1.5rem 2rem; overflow-x: auto; }
+  .main { padding: 1.5rem 2rem; overflow-x: auto; min-width: 0; }
   .main-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
   .employee-name { margin-top: 0.35rem; font-size: 0.95rem; font-weight: 600; color: var(--ink); }
   .main-title { font-family: 'Google Sans Flex', sans-serif; font-size: 1.45rem; color: var(--ink); font-weight: 900; }
@@ -198,6 +198,135 @@
 
   .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--sage); color: white; padding: 0.75rem 1.25rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 100; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ===== RESPONSIVE ===== */
+
+  /* Tablet — collapse sidebar on top */
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .sidebar-section {
+      flex: 1 1 220px;
+      min-width: 180px;
+    }
+    .btn { width: 100%; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .main { padding: 1rem; }
+    table { font-size: 0.75rem; }
+    th { font-size: 0.6rem; padding: 0.4rem 0.3rem; }
+    td:first-child { min-width: 0; }
+  }
+
+  /* Mobile — single column, scrollable table */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; gap: 0.75rem; }
+    header img { height: 34px !important; }
+    header .sub { font-size: 0.6rem; }
+
+    .sidebar {
+      flex-direction: column;
+      padding: 1rem;
+      gap: 1rem;
+    }
+    .sidebar-section { flex: none; width: 100%; }
+    .stats { grid-template-columns: 1fr 1fr; }
+
+    .main { padding: 0.75rem; overflow-x: auto; }
+    .main-header { flex-direction: column; gap: 0.5rem; }
+    .school-info { text-align: left !important; font-size: 0.65rem; }
+    .main-title { font-size: 1.15rem; }
+
+    /* Make tables horizontally scrollable on mobile */
+    .main > table,
+    .main > div > table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    /* Wrap each table in a scroll container */
+    #hodiny-table, .sup-table, .overtime-table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      min-width: 400px;
+    }
+
+    th { font-size: 0.55rem; padding: 0.35rem 0.25rem; white-space: nowrap; }
+    td { font-size: 0.72rem; }
+    td input[type="text"], td input[type="number"] { font-size: 0.72rem; padding: 0.25rem; }
+    td select.nemoc-sel { font-size: 0.72rem; }
+
+    .podpisy { grid-template-columns: 1fr; gap: 1.5rem; max-width: 100%; }
+    .add-row-btn { font-size: 0.7rem; }
+    .section-title { font-size: 0.6rem; }
+    .pspp-box { max-width: 100%; }
+    .pspp-row { flex-wrap: wrap; gap: 0.5rem; }
+    .pspp-input { width: 70px; }
+
+    .toast { bottom: 1rem; right: 1rem; left: 1rem; text-align: center; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: row; flex-wrap: wrap;
+      gap: 1rem; padding: 1rem;
+    }
+    .sidebar-section { flex: 1 1 220px; min-width: 180px; }
+    .btn { width: 100%; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .main { padding: 1rem; }
+    table { font-size: 0.75rem; }
+    th { font-size: 0.6rem; padding: 0.4rem 0.3rem; }
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 0.75rem; gap: 0.6rem; }
+    header img { height: 30px !important; }
+    header .sub { font-size: 0.58rem; letter-spacing: 0.02em; }
+
+    .sidebar { flex-direction: column; padding: 0.75rem; gap: 0.75rem; }
+    .sidebar-section { flex: none; width: 100%; }
+    .stats { grid-template-columns: 1fr 1fr; }
+
+    .main { padding: 0.75rem; overflow-x: auto; }
+    .main-header { flex-direction: column; gap: 0.4rem; }
+    .school-info { text-align: left !important; font-size: 0.62rem; }
+    .main-title { font-size: 1.1rem !important; }
+    .employee-name { font-size: 0.82rem; }
+
+    #hodiny-table, .sup-table, .overtime-table {
+      display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 380px;
+    }
+    th { font-size: 0.52rem; padding: 0.3rem 0.2rem; white-space: nowrap; }
+    td { font-size: 0.7rem; }
+    td input[type="text"], td input[type="number"], td input[type="search"] {
+      font-size: 0.7rem; padding: 0.2rem;
+    }
+    td select.nemoc-sel, .sup-type-sel { font-size: 0.7rem; }
+    .ce-cell { font-size: 0.7rem; padding: 0.2rem 0.3rem; }
+
+    .podpisy { grid-template-columns: 1fr; gap: 1.25rem; max-width: 100%; }
+    .section-title { font-size: 0.58rem; }
+    .add-row-btn { font-size: 0.68rem; padding: 0.3rem 0.5rem; }
+    .pspp-box { max-width: 100%; }
+    .pspp-row { flex-wrap: wrap; gap: 0.4rem; }
+    .pspp-input { width: 65px; }
+    .toast { bottom: 0.75rem; right: 0.75rem; left: 0.75rem; text-align: center; }
+  }
 
   /* ===== PRINT / PDF STYLES — A4 PORTRAIT ===== */
   @media print {
