@@ -152,6 +152,7 @@
 
   /* Contenteditable cells in sup/overtime tables */
   .ce-cell { cursor: text; }
+  .dn { display: inline; }
   .date-display { cursor: pointer !important; }
   .date-display:empty::before,
   .date-display:not(:empty):not([data-has-value])::before { }
@@ -843,10 +844,13 @@
       font-family: 'Google Sans Mono', monospace;
       border-right: 0.5pt solid #bbb;
       white-space: nowrap;
-      width: 13mm !important;
-      max-width: 13mm !important;
+      width: 9mm !important;
+      max-width: 9mm !important;
       overflow: hidden;
     }
+    #hodiny-table td:first-child .dn { display: none !important; }
+    #hodiny-table th:first-child { width: 9mm !important; max-width: 9mm !important; }
+    #hodiny-table col:first-child { width: 9mm !important; }
 
     #hodiny-table td input[type="text"],
     #hodiny-table td input[type="number"] {
@@ -1300,7 +1304,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
 
     if (nonWork) {
       tr.innerHTML = `
-        <td>${d}. ${dayName}${svatek?' 🎌':''}</td>
+        <td>${d}.<span class='dn'> ${dayName}</span>${svatek?' 🎌':''}</td>
         <td class="weekend-marker" colspan="${colspanNonWork}">${(date.getDay()===0||date.getDay()===6)?'víkend':'státní svátek'}</td>
       `;
     } else {
@@ -1311,7 +1315,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
       const tdNahrada = cfg.nahrada ? `<td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-nahrada" data-day="${d}"></td>` : '';
 
       tr.innerHTML = `
-        <td>${d}. ${dayName}</td>
+        <td>${d}.<span class='dn'> ${dayName}</span></td>
         <td><input autocomplete="off" type="number" min="0" max="24" step="0.5" class="h-hodiny" data-day="${d}" value="${defH}" oninput="updateStats()"></td>
         ${tdSup}
         ${tdNahrada}
