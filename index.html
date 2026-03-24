@@ -821,13 +821,13 @@
       white-space: normal;
       line-height: 1.2;
     }
-    #hodiny-table th:first-child { text-align: left; width: 44pt; white-space: nowrap; }
+    #hodiny-table th:first-child { text-align: left; width: 38pt !important; max-width: 38pt !important; white-space: nowrap; }
     /* column widths tuned for 190mm portrait */
-    #hodiny-table th:nth-child(2) { width: 30pt; }
-    #hodiny-table th:nth-child(3) { width: 30pt; }
-    #hodiny-table th:nth-child(4) { width: 28pt; }
-    #hodiny-table th:nth-child(5) { width: 28pt; }
-    #hodiny-table th:nth-child(6) { width: 36pt; }
+    #hodiny-table th:nth-child(2) { width: 30pt !important; }
+    #hodiny-table th:nth-child(3) { width: 30pt !important; }
+    #hodiny-table th:nth-child(4) { width: 28pt !important; }
+    #hodiny-table th:nth-child(5) { width: 28pt !important; }
+    #hodiny-table th:nth-child(6) { width: 36pt !important; }
     /* last column (jiná nepřítomnost) takes remaining space */
 
     #hodiny-table td {
@@ -838,11 +838,13 @@
       overflow: hidden;
     }
     #hodiny-table td:first-child {
-      padding: 0 4pt;
+      padding: 0 3pt;
       font-family: 'Google Sans Mono', monospace;
       border-right: 0.5pt solid #bbb;
       white-space: nowrap;
-      width: 44pt;
+      width: 38pt !important;
+      max-width: 38pt !important;
+      overflow: hidden;
     }
 
     #hodiny-table td input[type="text"],
