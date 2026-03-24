@@ -614,6 +614,39 @@
       margin: 10mm 10mm;
       /* Safari/WebKit: empty strings suppress URL/title/date in header+footer */
     }
+    /* Force PSPP block to B&W regardless of dark/light mode */
+    [data-theme="dark"] .pspp-page-block,
+    .pspp-page-block {
+      background: #e8e8e8 !important;
+      border: 1.5pt solid #999 !important;
+      color: #000 !important;
+      box-shadow: none !important;
+    }
+    [data-theme="dark"] .pspp-page-label,
+    .pspp-page-label { color: #555 !important; }
+    [data-theme="dark"] .pspp-page-caption,
+    .pspp-page-caption { color: #000 !important; }
+    [data-theme="dark"] .pspp-page-input,
+    .pspp-page-input { color: #000 !important; -webkit-text-fill-color: #000 !important; }
+    [data-theme="dark"] .pspp-page-unit,
+    .pspp-page-unit { color: #555 !important; }
+    [data-theme="dark"] .pspp-page-number-wrap,
+    .pspp-page-number-wrap { background: transparent !important; border: 1.5pt solid #1a1a2e !important; }
+
+    /* Force PSPP block to B&W in print regardless of dark/light mode */
+    [data-theme="dark"] .pspp-page-block,
+    .pspp-page-block {
+      background: #e8e8e8 !important;
+      border: 1.5pt solid #999 !important;
+      color: #000 !important;
+      box-shadow: none !important;
+    }
+    [data-theme="dark"] .pspp-page-label { color: #555 !important; }
+    [data-theme="dark"] .pspp-page-caption { color: #000 !important; }
+    [data-theme="dark"] .pspp-page-input { color: #000 !important; -webkit-text-fill-color: #000 !important; }
+    [data-theme="dark"] .pspp-page-unit { color: #555 !important; }
+    [data-theme="dark"] .pspp-page-number-wrap { background: transparent !important; border: 1.5pt solid #333 !important; }
+
     /* Safari-specific: force no header/footer via -webkit- prefixed @page props */
     @page :first { margin-top: 10mm; }
 
