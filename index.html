@@ -248,7 +248,7 @@
   .main-title { font-family: 'Google Sans Flex', sans-serif; font-size: 1.45rem; color: var(--ink); font-weight: 900; }
   .main-title .month-label { color: #2358A6; font-style: normal; font-weight: 900; }
   .school-info { font-size: 0.72rem; color: var(--muted); text-align: right; line-height: 1.6; }
-  .section-title { font-family: 'Google Sans Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; }
+  .section-title { font-family: 'Google Sans Flex', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; }
   .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
   table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 1.5rem; }
@@ -802,6 +802,7 @@
       width: 190mm !important;
       table-layout: fixed !important;
       border-collapse: collapse;
+      border: 1pt solid #555;
       font-size: 7pt;
       margin-bottom: 0;
       page-break-after: always;
@@ -833,8 +834,8 @@
     /* last column (jiná nepřítomnost) takes remaining space */
 
     #hodiny-table td {
-      border-bottom: 0.3pt solid #ccc;
-      border-right: 0.3pt solid #ddd;
+      border-bottom: 0.6pt solid #888;
+      border-right: 0.5pt solid #aaa;
       padding: 0;
       height: 12pt;
       overflow: hidden;
@@ -842,7 +843,7 @@
     #hodiny-table td:first-child {
       padding: 0 2mm;
       font-family: 'Google Sans Mono', monospace;
-      border-right: 0.5pt solid #bbb;
+      border-right: 0.8pt solid #666;
       white-space: nowrap;
       width: 9mm !important;
       max-width: 9mm !important;
@@ -904,6 +905,7 @@
 
     .sup-table, .overtime-table {
       width: 100%; border-collapse: collapse;
+      border: 1pt solid #555;
       font-size: 7.5pt; margin-bottom: 12pt;
       page-break-inside: avoid;
     }
@@ -911,11 +913,11 @@
     .overtime-table th { background: #3a2c1a !important; color: white !important; font-size: 6pt; padding: 3pt 4pt; }
 
     .sup-table td, .overtime-table td {
-      border-bottom: 0.4pt solid #ccc; border-right: 0.3pt solid #ddd;
+      border-bottom: 0.6pt solid #888; border-right: 0.5pt solid #aaa;
       height: 15pt; padding: 0;
     }
     .sup-table td:first-child, .overtime-table td:first-child {
-      padding: 0 4pt; font-size: 7pt; border-right: 0.5pt solid #bbb;
+      padding: 0 4pt; font-size: 7pt; border-right: 0.8pt solid #666;
     }
     .sup-table td input, .overtime-table td input,
     .sup-table td select, .overtime-table td select {
