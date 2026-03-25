@@ -826,12 +826,13 @@
     }
     #hodiny-table th:first-child { text-align: left; width: 13mm !important; max-width: 13mm !important; white-space: nowrap; }
     /* column widths tuned for 190mm portrait */
-    #hodiny-table th:nth-child(2) { width: 30pt !important; }
-    #hodiny-table th:nth-child(3) { width: 30pt !important; }
-    #hodiny-table th:nth-child(4) { width: 28pt !important; }
-    #hodiny-table th:nth-child(5) { width: 28pt !important; }
-    #hodiny-table th:nth-child(6) { width: 36pt !important; }
-    /* last column (jiná nepřítomnost) takes remaining space */
+    /* Equal width for data columns 2-5, jiná nepřítomnost gets rest */
+    #hodiny-table th:nth-child(2) { width: 22mm !important; }
+    #hodiny-table th:nth-child(3) { width: 22mm !important; }
+    #hodiny-table th:nth-child(4) { width: 22mm !important; }
+    #hodiny-table th:nth-child(5) { width: 22mm !important; }
+    #hodiny-table th:nth-child(6) { width: 22mm !important; }
+    /* last column (jiná nepřítomnost) takes remaining ~42mm */
 
     #hodiny-table td {
       border-bottom: 0.6pt solid #888;
@@ -1204,11 +1205,11 @@ function generateTable() {
     <div class="section-title section-title-hodiny">Denní přehled hodin</div>
     <table id="hodiny-table">
       <colgroup>
-        <col style="width:38pt">
-        <col style="width:30pt">
-        ${cfg.sup ? '<col style="width:30pt">' : ''}
-        ${cfg.nahrada ? '<col style="width:28pt">' : ''}
-        <col style="width:36pt">
+        <col style="width:13mm">
+        <col style="width:22mm">
+        ${cfg.sup ? '<col style="width:22mm">' : ''}
+        ${cfg.nahrada ? '<col style="width:22mm">' : ''}
+        <col style="width:22mm">
         <col>
       </colgroup>
       <thead><tr>
