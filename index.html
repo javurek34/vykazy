@@ -14,8 +14,9 @@
     /* ── LIGHT MODE (default) ── */
   :root {
     --ink: #1a1a2e;
+    --accent: #292E99;
     --paper: #f5f0e8;
-    --cream: #ede8db;
+    --cream: #E3EBF5;
     --rust: #c0392b;
     --gold: #b8860b;
     --sage: #4a7c59;
@@ -24,9 +25,9 @@
     --weekend: #f9e8e6;
     --weekend-text: #c0392b;
     --highlight: #fff9e6;
-    --header-bg: #1a1a2e;
+    --header-bg: #2358A6;
     --header-border: #c0392b;
-    --th-bg: #2e4a6b;       /* klidná modrá */
+    --th-bg: #292E99;
     --th-sup: #3a6b4a;      /* mechová zelená */
     --th-ot: #6b4a1e;       /* terakota / hořčice */
     --th-akce: #5a3d70;     /* tlumená fialová */
@@ -226,8 +227,8 @@
   input[type=text]:focus, input[type=number]:focus, select:focus { border-color: var(--rust); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
 
   .btn { width: 100%; padding: 0.7rem 1rem; border: none; border-radius: 4px; font-family: 'Google Sans Flex', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
-  .btn-primary { background: var(--ink); color: var(--paper); }
-  .btn-primary:hover { background: #2d2d4e; }
+  .btn-primary { background: var(--accent); color: var(--paper); }
+  .btn-primary:hover { background: #1e2380; }
   .btn-export { background: var(--rust); color: white; margin-top: 0.5rem; }
   .btn-export:hover { background: #a93226; }
   .btn-clear { background: transparent; color: var(--muted); border: 1px solid var(--border); margin-top: 0.3rem; font-size: 0.78rem; }
@@ -388,7 +389,7 @@
   }
   .dni-wide span { width: 100%; justify-content: center; }
   .dni-item input:checked + span {
-    background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 600;
+    background: var(--accent); color: var(--paper); border-color: var(--accent); font-weight: 600;
   }
 
 
@@ -813,7 +814,7 @@
     #hodiny-table thead { display: table-header-group; }
 
     #hodiny-table th {
-      background: #1a1a2e !important;
+      background: #292E99 !important;
       color: white !important;
       font-size: 5.5pt;
       padding: 3pt 2pt;
@@ -978,7 +979,7 @@
       <span id="theme-label" style="font-size:0.7rem;color:rgba(255,255,255,0.55);font-family:'Google Sans Mono',monospace;letter-spacing:0.05em;text-transform:uppercase;user-select:none"></span>
       <div id="ios-toggle" style="
         width:44px;height:26px;border-radius:13px;
-        background:#3a3a4a;border:2px solid rgba(255,255,255,0.1);
+        background:#292E99;border:2px solid rgba(255,255,255,0.1);
         position:relative;transition:background 0.25s;cursor:pointer;flex-shrink:0;
       ">
         <div id="ios-knob" style="
