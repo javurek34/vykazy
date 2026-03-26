@@ -225,6 +225,7 @@
     transition: border-color 0.15s, box-shadow 0.15s; outline: none;
   }
   input[type=text]:focus, input[type=number]:focus, select:focus { border-color: var(--rust); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
+  textarea:focus { border-color: var(--rust) !important; box-shadow: 0 0 0 3px rgba(192,57,43,0.1) !important; }
 
   .btn { width: 100%; padding: 0.7rem 1rem; border: none; border-radius: 4px; font-family: 'Google Sans Flex', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
   .btn-primary { background: var(--accent); color: var(--paper); }
@@ -397,7 +398,8 @@
   /* ── DARK MODE OVERRIDES ── */
   [data-theme="dark"] input[type=text],
   [data-theme="dark"] input[type=number],
-  [data-theme="dark"] select {
+  [data-theme="dark"] select,
+  [data-theme="dark"] textarea {
     background: #3a3a3c;
     color: #ffffff;
     border-color: rgba(84,84,88,0.5);
@@ -602,6 +604,21 @@
     td input[type="text"], td input[type="number"] { font-size: 0.72rem; padding: 0.25rem; }
     td select.nemoc-sel { font-size: 0.72rem; }
 
+    #doplnujici-info {
+      width: 100% !important;
+      min-height: 60pt !important;
+      border: 0.5pt solid #999 !important;
+      border-radius: 3pt;
+      padding: 6pt 8pt !important;
+      font-size: 8pt !important;
+      font-family: 'Google Sans Flex', sans-serif !important;
+      color: #000 !important;
+      background: white !important;
+      resize: none;
+      margin-bottom: 10pt !important;
+      box-sizing: border-box;
+      display: block;
+    }
     .podpisy { grid-template-columns: 1fr; gap: 1.5rem; max-width: 100%; }
     .add-row-btn { font-size: 0.7rem; }
     .section-title { font-size: 0.6rem; }
@@ -617,7 +634,8 @@
   /* ── DARK MODE OVERRIDES ── */
   [data-theme="dark"] input[type=text],
   [data-theme="dark"] input[type=number],
-  [data-theme="dark"] select {
+  [data-theme="dark"] select,
+  [data-theme="dark"] textarea {
     background: #3a3a3c;
     color: #ffffff;
     border-color: rgba(84,84,88,0.5);
@@ -1402,6 +1420,24 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
       <button class="add-row-btn" onclick="addAkceRow()">＋ Přidat školní akci</button>` : ''}
 
       ${pozice === 'ucitel' ? parlamentHtml() : ''}
+      <div class="section-title">Doplňující informace</div>
+      <textarea id="doplnujici-info" placeholder="Poznámky, které se nevešly jinam..." style="
+        width: 100%;
+        min-height: 90px;
+        background: var(--paper);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.65rem 0.75rem;
+        font-family: 'Google Sans Flex', sans-serif;
+        font-size: 0.85rem;
+        color: var(--ink);
+        resize: vertical;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        margin-bottom: 1.5rem;
+        box-sizing: border-box;
+        line-height: 1.5;
+      " autocomplete="off"></textarea>
       <div class="podpisy">
         <div class="podpis-box">
           <div class="podpis-line" style="display:flex;align-items:flex-end;padding-bottom:2px;">
@@ -1925,6 +1961,7 @@ function clearAll() {
   document.getElementById('overtime-body').innerHTML='';
   const akceBody = document.getElementById('akce-body'); if(akceBody) akceBody.innerHTML='';
   const parlBody = document.getElementById('parlament-body'); if(parlBody) parlBody.innerHTML='';
+  const info = document.getElementById('doplnujici-info'); if(info) info.value='';
   updateStats();
   showToast('Data vymazána');
 }
