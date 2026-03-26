@@ -1580,34 +1580,55 @@ function addSupRow() {
   const tdPred = document.createElement('td');
   tdPred.innerHTML = `<select class="pred-sel" style="width:100%;background:transparent;border:none;font-family:'Google Sans Flex',sans-serif;font-size:0.78rem;color:var(--ink);padding:0.3rem 0.4rem;cursor:pointer;outline:none;text-align:left">
     <option value="">— předmět —</option>
-<option value="Český jazyk" data-mult="1">Český jazyk</option>
-<option value="Matematika" data-mult="1">Matematika</option>
-<option value="Anglický jazyk" data-mult="1">Anglický jazyk</option>
-<option value="Německý jazyk" data-mult="1">Německý jazyk</option>
-<option value="Přírodopis" data-mult="1">Přírodopis</option>
-<option value="Zeměpis" data-mult="1">Zeměpis</option>
-<option value="Dějepis" data-mult="1">Dějepis</option>
-<option value="Fyzika" data-mult="1">Fyzika</option>
-<option value="Chemie" data-mult="1">Chemie</option>
-<option value="Výtvarná výchova" data-mult="1">Výtvarná výchova</option>
-<option value="Hudební výchova" data-mult="1">Hudební výchova</option>
-<option value="Tělesná výchova" data-mult="1">Tělesná výchova</option>
-<option value="Pracovní výchova" data-mult="1">Pracovní výchova</option>
-<option value="Informatika" data-mult="1">Informatika</option>
-<option value="Občanská výchova" data-mult="1">Občanská výchova</option>
-<option value="Prvouka" data-mult="1">Prvouka</option>
-<option value="Přírodověda" data-mult="1">Přírodověda</option>
-<option value="Vlastivěda" data-mult="1">Vlastivěda</option>
-<option value="Epocha – Český jazyk" data-mult="2.4">Epocha – Český jazyk</option>
-<option value="Epocha – Matematika" data-mult="2.4">Epocha – Matematika</option>
-<option value="Epocha – Biologie" data-mult="2.4">Epocha – Biologie</option>
-<option value="Epocha – Dějepis" data-mult="2.4">Epocha – Dějepis</option>
-<option value="Epocha – Fyzika" data-mult="2.4">Epocha – Fyzika</option>
-<option value="Epocha – Chemie" data-mult="2.4">Epocha – Chemie</option>
-<option value="Epocha – Zeměpis" data-mult="2.4">Epocha – Zeměpis</option>
-<option value="Epocha – Prvouka" data-mult="2.4">Epocha – Prvouka</option>
-<option value="Epocha – Přírodověda" data-mult="2.4">Epocha – Přírodověda</option>
-<option value="Epocha – Vlastivěda" data-mult="2.4">Epocha – Vlastivěda</option>
+      <option value="Český jazyk" data-mult="1">Český jazyk</option>
+      <option value="Matematika" data-mult="1">Matematika</option>
+      <option value="Anglický jazyk" data-mult="1">Anglický jazyk</option>
+      <option value="Německý jazyk" data-mult="1">Německý jazyk</option>
+      <option value="Informatika" data-mult="1">Informatika</option>
+      <option value="Přírodopis" data-mult="1">Přírodopis</option>
+      <option value="Dějepis" data-mult="1">Dějepis</option>
+      <option value="Výchova k občanství" data-mult="1">Výchova k občanství</option>
+      <option value="Prvouka" data-mult="1">Prvouka</option>
+      <option value="Vlastivěda" data-mult="1">Vlastivěda</option>
+      <option value="Přírodověda" data-mult="1">Přírodověda</option>
+      <option value="Zeměpis" data-mult="1">Zeměpis</option>
+      <option value="Fyzika" data-mult="1">Fyzika</option>
+      <option value="Chemie" data-mult="1">Chemie</option>
+      <option value="Výtvarná výchova" data-mult="1">Výtvarná výchova</option>
+      <option value="Hudební výchova" data-mult="1">Hudební výchova</option>
+      <option value="Tělesná výchova" data-mult="1">Tělesná výchova</option>
+      <option value="Výchova ke zdraví" data-mult="1">Výchova ke zdraví</option>
+      <option value="Praktické činnosti" data-mult="1">Praktické činnosti</option>
+      <option value="Svět práce" data-mult="1">Svět práce</option>
+      <option value="Epocha" data-mult="2.4">Epocha</option>
+      <option value="Pracovní výchova" data-mult="1">Pracovní výchova</option>
+      <option value="Český jazyk a literatura" data-mult="1">Český jazyk a literatura</option>
+      <option value="Cvičná hodina - M" data-mult="1">Cvičná hodina - M</option>
+      <option value="Člověk a jeho svět" data-mult="1">Člověk a jeho svět</option>
+      <option value="Kreslení forem" data-mult="1">Kreslení forem</option>
+      <option value="Člověk a příroda" data-mult="1">Člověk a příroda</option>
+      <option value="Matematické představy" data-mult="1">Matematické představy</option>
+      <option value="Člověk a společnost" data-mult="1">Člověk a společnost</option>
+      <option value="Jazyková výchova" data-mult="1">Jazyková výchova</option>
+      <option value="Německý jazyk – kroužek" data-mult="1">Německý jazyk – kroužek</option>
+      <option value="Orchestr" data-mult="1">Orchestr</option>
+      <option value="Pracovní vyučování" data-mult="1">Pracovní vyučování</option>
+      <option value="Anglický jazyk – kroužek" data-mult="1">Anglický jazyk – kroužek</option>
+      <option value="Biologie" data-mult="1">Biologie</option>
+      <option value="Cvičná hodina – ČJ" data-mult="1">Cvičná hodina – ČJ</option>
+      <option value="Eurytmie" data-mult="1">Eurytmie</option>
+      <option value="Praktická výchova" data-mult="1">Praktická výchova</option>
+      <option value="Rozumová výchova" data-mult="1">Rozumová výchova</option>
+      <option value="Epocha – Český jazyk" data-mult="2.4">Epocha – Český jazyk</option>
+      <option value="Epocha – Matematika" data-mult="2.4">Epocha – Matematika</option>
+      <option value="Epocha – Biologie" data-mult="2.4">Epocha – Biologie</option>
+      <option value="Epocha – Dějepis" data-mult="2.4">Epocha – Dějepis</option>
+      <option value="Epocha – Fyzika" data-mult="2.4">Epocha – Fyzika</option>
+      <option value="Epocha – Chemie" data-mult="2.4">Epocha – Chemie</option>
+      <option value="Epocha – Zeměpis" data-mult="2.4">Epocha – Zeměpis</option>
+      <option value="Epocha – Prvouka" data-mult="2.4">Epocha – Prvouka</option>
+      <option value="Epocha – Přírodověda" data-mult="2.4">Epocha – Přírodověda</option>
+      <option value="Epocha – Vlastivěda" data-mult="2.4">Epocha – Vlastivěda</option>
   </select>`;
   // Show multiplier hint when epoch selected
   tdPred.querySelector('select').addEventListener('change', function() {
