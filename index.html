@@ -2067,18 +2067,35 @@ function scaleForPrint() {
 
   const rowCount = table.querySelector('tbody').querySelectorAll('tr').length;
 
-  // A4 portrait usable height in px at 96dpi: (297-20)mm * 3.7795 ≈ 1047px
-  // Subtract header estimate in px
-  const PAGE_PX = 1047;
-  const HEADER_PX = 130; // main-header + employee-name + section-title + thead
+  // Strategy: scale the entire page down so it fits even WITH browser header/footer.
+  // Browser header+footer typically take ~25mm total (top ~15mm, bottom ~10mm).
+  // A4 = 297mm. With 10mm margins + 25mm header/footer = 45mm lost → usable: 252mm
+  // We scale the content to fit within 252mm instead of full 277mm.
+  // Scale factor: 252/277 ≈ 0.91
+  // Additional safety buffer → use 0.88
+
+  const SCALE = 0.88;
+
+  // Full A4 usable at 96dpi without header/footer: ~1047px
+  // With scale: 1047 * 0.88 ≈ 922px for content
+  const PAGE_PX = 1047 * SCALE;
+  const HEADER_PX = 130 * SCALE;
   const AVAIL_PX = PAGE_PX - HEADER_PX;
-  const rowH_px = Math.max(18, AVAIL_PX / rowCount);
-  const fontSize_px = Math.min(13, Math.max(9, rowH_px * 0.58));
+  const rowH_px = Math.max(14, AVAIL_PX / rowCount);
+  const fontSize_px = Math.min(12, Math.max(8, rowH_px * 0.58));
 
   const styleEl = document.getElementById('print-scale') || document.createElement('style');
   styleEl.id = 'print-scale';
   styleEl.textContent = `
     @media print {
+      /* Scale entire page to guarantee fit even with browser header/footer */
+      html {
+        transform: scale(${SCALE});
+        transform-origin: top center;
+        width: ${(100 / SCALE).toFixed(2)}%;
+        height: ${(100 / SCALE).toFixed(2)}%;
+        margin: 0 auto;
+      }
       #hodiny-table {
         table-layout: fixed;
       }
