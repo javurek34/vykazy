@@ -2067,48 +2067,38 @@ function scaleForPrint() {
 
   const rowCount = table.querySelector('tbody').querySelectorAll('tr').length;
 
-  // A4 portrait at 96dpi: 297mm = 1122px total
-  // Usable without margins (10mm each): 277mm = 1047px
-  // Browser header+footer ~25mm = ~95px extra loss
-  // So worst-case usable: ~952px
+  // Use CSS zoom instead of transform — zoom shrinks content AND its box,
+  // so margins stay proportional and there's no whitespace problem.
+  // A4 portrait: 297mm usable with 10mm margins = 277mm = 1047px at 96dpi
+  // Browser header+footer worst case: ~25mm = ~95px
+  // Usable with header/footer: ~952px
+  // Header block (title + name + section): ~130px
+  // Available for rows with header/footer: 822px
+  // Available for rows without: 917px
 
-  // Measure actual table height needed at natural row size
-  // Each row is ~18-24px naturally. If 31 rows × 22px + header ~130px = ~812px → fits fine
-  // But if rows are taller (fewer rows, more space), scale isn't needed.
-
-  // Only scale if content won't fit with header/footer
-  const USABLE_WITH_HEADERFOOT = 952; // px
   const HEADER_PX = 130;
-  const AVAIL_PX = USABLE_WITH_HEADERFOOT - HEADER_PX; // 822px for rows
+  const AVAIL_SAFE = 822;   // with browser header/footer
+  const AVAIL_FULL = 917;   // without
 
-  // Minimum row height to fit all rows in available space
-  const minRowH = AVAIL_PX / rowCount;
+  const naturalRowH = AVAIL_FULL / rowCount;
+  const safeRowH    = AVAIL_SAFE / rowCount;
 
-  // Natural row height (what we'd like)
-  const USABLE_NATURAL = 1047 - HEADER_PX; // 917px
-  const naturalRowH = USABLE_NATURAL / rowCount;
+  // Only zoom if rows would overflow
+  const needsZoom = naturalRowH > safeRowH;
+  const ZOOM = needsZoom ? Math.max(0.84, safeRowH / naturalRowH) : 1.0;
 
-  // If natural row height fits within header/footer budget → no scale needed
-  // If not → scale down just enough
-  const needsScale = naturalRowH > minRowH;
-  const SCALE = needsScale ? Math.max(0.82, minRowH / naturalRowH) : 1.0;
-
-  const rowH_px = Math.min(naturalRowH, minRowH);
+  const rowH_px = needsZoom ? safeRowH : naturalRowH;
   const fontSize_px = Math.min(12, Math.max(7.5, rowH_px * 0.58));
 
   const styleEl = document.getElementById('print-scale') || document.createElement('style');
   styleEl.id = 'print-scale';
 
-  const scaleCSS = SCALE < 1.0 ? `
-      html {
-        transform: scale(${SCALE.toFixed(3)});
-        transform-origin: top center;
-        width: ${(100 / SCALE).toFixed(2)}%;
-      }` : '';
+  const zoomCSS = needsZoom ? `
+      html { zoom: ${ZOOM.toFixed(3)}; }` : '';
 
   styleEl.textContent = `
     @media print {
-      ${scaleCSS}
+      ${zoomCSS}
       #hodiny-table { table-layout: fixed; }
       #hodiny-table td {
         height: ${rowH_px.toFixed(1)}px !important;
