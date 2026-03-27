@@ -2067,53 +2067,52 @@ function scaleForPrint() {
 
   const rowCount = table.querySelector('tbody').querySelectorAll('tr').length;
 
-  // Use CSS zoom instead of transform — zoom shrinks content AND its box,
-  // so margins stay proportional and there's no whitespace problem.
-  // A4 portrait: 297mm usable with 10mm margins = 277mm = 1047px at 96dpi
-  // Browser header+footer worst case: ~25mm = ~95px
-  // Usable with header/footer: ~952px
-  // Header block (title + name + section): ~130px
-  // Available for rows with header/footer: 822px
-  // Available for rows without: 917px
+  // A4 portrait with @page margin 10mm each side:
+  // Total height: 297mm. Margins: 20mm. Usable: 277mm.
+  // Browser header+footer: ~22mm worst case.
+  // Safe usable: 277 - 22 = 255mm.
+  //
+  // Header block (main-header + employee-name + section-title + thead):
+  // empirically ~32mm
+  //
+  // Available for rows: 255 - 32 = 223mm
+  // With 31 rows: 223/31 = 7.2mm per row
+  // With 28 rows: 223/28 = 7.96mm per row
 
-  const HEADER_PX = 130;
-  const AVAIL_SAFE = 822;   // with browser header/footer
-  const AVAIL_FULL = 917;   // without
+  const SAFE_MM = 255;
+  const HEADER_MM = 32;
+  const AVAIL_MM = SAFE_MM - HEADER_MM;
+  const rowH_mm = Math.max(5.5, AVAIL_MM / rowCount);
 
-  const naturalRowH = AVAIL_FULL / rowCount;
-  const safeRowH    = AVAIL_SAFE / rowCount;
-
-  // Only zoom if rows would overflow
-  const needsZoom = naturalRowH > safeRowH;
-  const ZOOM = needsZoom ? Math.max(0.84, safeRowH / naturalRowH) : 1.0;
-
-  const rowH_px = needsZoom ? safeRowH : naturalRowH;
-  const fontSize_px = Math.min(12, Math.max(7.5, rowH_px * 0.58));
+  // Font size: roughly 55% of row height in mm → pt (1mm ≈ 2.835pt)
+  const rowH_pt = rowH_mm * 2.835;
+  const fontSize_pt = Math.min(8.5, Math.max(5.5, rowH_pt * 0.52));
 
   const styleEl = document.getElementById('print-scale') || document.createElement('style');
   styleEl.id = 'print-scale';
-
-  const zoomCSS = needsZoom ? `
-      html { zoom: ${ZOOM.toFixed(3)}; }` : '';
-
   styleEl.textContent = `
     @media print {
-      ${zoomCSS}
-      #hodiny-table { table-layout: fixed; }
+      /* No zoom/scale — just precise row heights in mm */
+      #hodiny-table {
+        table-layout: fixed;
+        width: 190mm !important;
+      }
       #hodiny-table td {
-        height: ${rowH_px.toFixed(1)}px !important;
-        max-height: ${rowH_px.toFixed(1)}px !important;
+        height: ${rowH_mm.toFixed(2)}mm !important;
+        max-height: ${rowH_mm.toFixed(2)}mm !important;
         overflow: hidden;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
       }
       #hodiny-table td:first-child,
-      #hodiny-table td input,
-      #hodiny-table td select.nemoc-sel {
-        font-size: ${fontSize_px.toFixed(1)}px !important;
+      #hodiny-table th {
+        font-size: ${fontSize_pt.toFixed(1)}pt !important;
       }
       #hodiny-table td input,
       #hodiny-table td select.nemoc-sel {
-        height: ${(rowH_px - 2).toFixed(1)}px !important;
-        line-height: ${(rowH_px - 2).toFixed(1)}px !important;
+        font-size: ${fontSize_pt.toFixed(1)}pt !important;
+        height: ${(rowH_mm - 0.8).toFixed(2)}mm !important;
+        line-height: ${(rowH_mm - 0.8).toFixed(2)}mm !important;
       }
     }
   `;
