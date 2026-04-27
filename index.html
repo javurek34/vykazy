@@ -1213,8 +1213,43 @@ const MESICE = ['','Leden','Únor','Březen','Duben','Květen','Červen','Červe
 const DNY = ['Ne','Po','Út','St','Čt','Pá','So'];
 const STATNI_SVATKY = [[1,1],[5,1],[5,8],[7,5],[7,6],[9,28],[10,28],[11,17],[12,24],[12,25],[12,26]];
 
+// Výpočet Velikonočního pondělí a Velkého pátku (pohyblivé svátky)
+function getEaster(year) {
+  // Anonymní Greguariánský algoritmus
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31); // 3=březen, 4=duben
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day); // Neděle
+}
+
+function getEasterHolidays(year) {
+  const sunday = getEaster(year);
+  // Velký pátek = 2 dny před Velikonoční nedělí
+  const friday = new Date(sunday); friday.setDate(sunday.getDate() - 2);
+  // Velikonoční pondělí = 1 den po Velikonoční nedělí
+  const monday = new Date(sunday); monday.setDate(sunday.getDate() + 1);
+  return [friday, monday];
+}
+
 function isWeekend(d) { const w = d.getDay(); return w===0||w===6; }
-function isSvatek(d) { return STATNI_SVATKY.some(([m,dd]) => d.getMonth()+1===m && d.getDate()===dd); }
+function isSvatek(d) {
+  // Pevné svátky
+  if (STATNI_SVATKY.some(([m,dd]) => d.getMonth()+1===m && d.getDate()===dd)) return true;
+  // Pohyblivé svátky (Velký pátek + Velikonoční pondělí)
+  const [friday, monday] = getEasterHolidays(d.getFullYear());
+  return d.toDateString() === friday.toDateString() || d.toDateString() === monday.toDateString();
+}
 function isNonWorking(d) { return isWeekend(d)||isSvatek(d); }
 function getDaysInMonth(m,y) { return new Date(y,m,0).getDate(); }
 
@@ -1464,7 +1499,7 @@ ${pozice !== 'speciped' ? `      <div class="section-title">Přesčasy — škol
 
     if (nonWork) {
       tr.innerHTML = `
-        <td style='text-align:center'>${d}.${svatek?' 🎌':''}</td>
+        <td style='text-align:center'>${d}.</td>
         <td class="weekend-marker" colspan="${colspanNonWork}">${(date.getDay()===0||date.getDay()===6)?'víkend':'státní svátek'}</td>
       `;
     } else {
