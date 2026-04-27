@@ -1296,7 +1296,7 @@ function parlamentHtml() {
 // Pozice config: which columns are shown
 const POZICE_CONFIG = {
   ucitel:   { label: 'Učitel/ka',                     sup: true,  nahrada: true  },
-  druzina:  { label: 'Školní družina',                 sup: false, nahrada: false },
+  druzina:  { label: 'Školní družina',                 sup: false, nahrada: false, showSupSection: true },
   asistent: { label: 'Asistent/ka pedagoga',           sup: true,  nahrada: true  },
   neped:    { label: 'Nepedagogický pracovník',        sup: false, nahrada: false },
   speciped: { label: 'Speciální pedagog/pedagožka',   sup: false, nahrada: false },
@@ -1406,7 +1406,7 @@ function generateTable() {
         <div class="p2-info">Základní škola, Liberec, Kaplického 384, p. o. &nbsp;|&nbsp; IČ: 72743379</div>
       </div>
 
-      ${cfg.sup ? `
+      ${(cfg.sup || cfg.showSupSection) ? `
       <div class="section-title">Nadúvazkové hodiny a náhrady</div>
       <table class="sup-table">
         <thead><tr>
