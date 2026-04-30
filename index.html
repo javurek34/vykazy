@@ -2304,12 +2304,17 @@ async function generatePDFDownload() {
     document.getElementById('main').classList.add('pdf-rendering');
     await new Promise(r => setTimeout(r, 150));
 
+    // A4 at 150dpi for sharp output: 210mm * 5.906 = 1240px, content 190mm = 1122px
+    const A4_PX = 1122; // 190mm content width at 150dpi
+
     const canvasOpts = {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
-      width: pxW,
-      windowWidth: pxW,
+      width: A4_PX,
+      windowWidth: A4_PX,
+      scrollX: 0,
+      scrollY: 0,
       imageTimeout: 0,
       allowTaint: false,
       logging: false,
@@ -2317,7 +2322,7 @@ async function generatePDFDownload() {
 
     // Page 1: main header + hodiny table
     const page1 = document.createElement('div');
-    page1.style.cssText = `width:${pxW}px;background:white;padding:0;font-family:'Google Sans Flex',sans-serif;`;
+    page1.style.cssText = `width:${A4_PX}px;min-width:${A4_PX}px;background:white;padding:0;font-family:'Google Sans Flex',sans-serif;overflow:hidden;`;
     const mainClone1 = main.cloneNode(true);
     const p2clone = mainClone1.querySelector('.print-page2');
     if (p2clone) p2clone.remove();
@@ -2328,7 +2333,7 @@ async function generatePDFDownload() {
     const canvas1 = await html2canvas(page1, canvasOpts);
     document.body.removeChild(page1);
 
-    const imgH1 = (canvas1.height / canvas1.width) * contentW;
+    const imgH1 = (canvas1.height / canvas1.width) * contentW; // canvas1.width = A4_PX * scale
     pdf.addImage(canvas1.toDataURL('image/jpeg', 0.93), 'JPEG', margin, margin, contentW, Math.min(imgH1, pageH - 2*margin));
 
     // Page 2: print-page2 block
@@ -2336,7 +2341,7 @@ async function generatePDFDownload() {
     if (p2el) {
       pdf.addPage();
       const page2 = document.createElement('div');
-      page2.style.cssText = `width:${pxW}px;background:white;padding:8px;font-family:'Google Sans Flex',sans-serif;`;
+      page2.style.cssText = `width:${A4_PX}px;min-width:${A4_PX}px;background:white;padding:8px;font-family:'Google Sans Flex',sans-serif;overflow:hidden;`;
       const p2clone2 = p2el.cloneNode(true);
       freezeClone(p2clone2, snap);
       page2.appendChild(p2clone2);
