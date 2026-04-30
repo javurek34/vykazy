@@ -2182,6 +2182,60 @@ async function exportPDF() {
   }
 }
 
+// Converts all interactive elements in a clone to static text for html2canvas
+function freezeClone(root) {
+  // 1. contenteditable divs → plain divs with text
+  root.querySelectorAll('[contenteditable]').forEach(el => {
+    el.removeAttribute('contenteditable');
+    // Keep textContent as-is
+  });
+
+  // 2. date input overlays → remove
+  root.querySelectorAll('input[type="date"]').forEach(el => el.remove());
+
+  // 3. select elements → replace with span showing selected text
+  root.querySelectorAll('select').forEach(sel => {
+    const span = document.createElement('span');
+    span.style.cssText = sel.style.cssText;
+    span.style.display = 'block';
+    span.style.width = '100%';
+    span.style.padding = sel.style.padding || '0.3rem 0.4rem';
+    span.style.fontSize = window.getComputedStyle(sel).fontSize;
+    span.style.fontFamily = window.getComputedStyle(sel).fontFamily;
+    span.style.color = sel.classList.contains('set') || sel.classList.contains('nemoc-sel') 
+      ? (sel.value ? '#c0392b' : '#999') 
+      : (sel.value ? '#1a1a2e' : '#999');
+    span.textContent = sel.value || '—';
+    sel.parentNode.replaceChild(span, sel);
+  });
+
+  // 4. regular text/number inputs → replace with span
+  root.querySelectorAll('input[type="text"], input[type="number"], input[type="search"]').forEach(inp => {
+    const span = document.createElement('span');
+    span.style.display = 'block';
+    span.style.width = '100%';
+    span.style.textAlign = inp.style.textAlign || 'center';
+    span.style.padding = '0 0.4rem';
+    span.style.fontSize = window.getComputedStyle(inp).fontSize;
+    span.style.fontFamily = window.getComputedStyle(inp).fontFamily;
+    span.style.color = '#1a1a2e';
+    span.textContent = inp.value || '';
+    inp.parentNode.replaceChild(span, inp);
+  });
+
+  // 5. textarea → replace with div
+  root.querySelectorAll('textarea').forEach(ta => {
+    const div = document.createElement('div');
+    div.style.cssText = ta.getAttribute('style') || '';
+    div.style.whiteSpace = 'pre-wrap';
+    div.textContent = ta.value || '';
+    ta.parentNode.replaceChild(div, ta);
+  });
+
+  // 6. remove buttons
+  root.querySelectorAll('.add-row-btn, .del-btn, .date-display::after').forEach(el => el.remove());
+}
+
 async function generatePDFDownload() {
   const mesic = document.getElementById('mesic').value;
   const rok = document.getElementById('rok').value;
@@ -2227,8 +2281,8 @@ async function generatePDFDownload() {
     const mainClone1 = main.cloneNode(true);
     const p2clone = mainClone1.querySelector('.print-page2');
     if (p2clone) p2clone.remove();
-    // Remove date inputs (invisible overlays that confuse html2canvas)
-    mainClone1.querySelectorAll('input[type="date"]').forEach(el => el.remove());
+    // Freeze clone: replace interactive elements with static text for html2canvas
+    freezeClone(mainClone1);
     page1.appendChild(mainClone1);
     document.body.appendChild(page1);
     const canvas1 = await html2canvas(page1, canvasOpts);
@@ -2244,9 +2298,7 @@ async function generatePDFDownload() {
       const page2 = document.createElement('div');
       page2.style.cssText = `width:${pxW}px;background:white;padding:8px;font-family:'Google Sans Flex',sans-serif;`;
       const p2clone2 = p2el.cloneNode(true);
-      p2clone2.querySelectorAll('input[type="date"]').forEach(el => el.remove());
-      // Remove add-row buttons
-      p2clone2.querySelectorAll('.add-row-btn,.del-btn').forEach(el => el.remove());
+      freezeClone(p2clone2);
       page2.appendChild(p2clone2);
       document.body.appendChild(page2);
       const canvas2 = await html2canvas(page2, canvasOpts);
