@@ -2175,7 +2175,20 @@ async function exportPDF() {
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-  if (isIOS || isSafari) {
+  if (isIOS) {
+    // iOS Safari: swap viewport to full-width for print, then use native print
+    // html2canvas is unreliable on iOS — native print dialog is more accurate
+    const vp = document.querySelector('meta[name="viewport"]');
+    const origContent = vp ? vp.getAttribute('content') : '';
+    if (vp) vp.setAttribute('content', 'width=794'); // A4 at 96dpi
+    setTimeout(() => {
+      _origPrint();
+      // Restore viewport after print dialog opens
+      setTimeout(() => {
+        if (vp) vp.setAttribute('content', origContent);
+      }, 1000);
+    }, 150);
+  } else if (isSafari) {
     await generatePDFDownload();
   } else {
     setTimeout(_origPrint, 80);
