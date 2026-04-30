@@ -2183,57 +2183,97 @@ async function exportPDF() {
 }
 
 // Converts all interactive elements in a clone to static text for html2canvas
-function freezeClone(root) {
-  // 1. contenteditable divs → plain divs with text
-  root.querySelectorAll('[contenteditable]').forEach(el => {
-    el.removeAttribute('contenteditable');
-    // Keep textContent as-is
+// Snapshot values from LIVE DOM before cloning
+function snapshotValues(container) {
+  const map = new Map();
+  // select values
+  container.querySelectorAll('select').forEach((sel, i) => {
+    sel.dataset.snapIdx = i;
+    map.set('sel_' + i, { value: sel.value, isRed: sel.classList.contains('set') || (sel.classList.contains('nemoc-sel') && sel.value) });
+  });
+  // input values
+  container.querySelectorAll('input[type="text"],input[type="number"],input[type="search"]').forEach((inp, i) => {
+    inp.dataset.snapIdx = i;
+    map.set('inp_' + i, inp.value);
+  });
+  // date display text
+  container.querySelectorAll('.date-display').forEach((d, i) => {
+    d.dataset.snapIdx = i;
+    map.set('date_' + i, d.textContent.trim());
+  });
+  // contenteditable text
+  container.querySelectorAll('[contenteditable]').forEach((d, i) => {
+    if (!d.classList.contains('date-display')) {
+      d.dataset.ceIdx = i;
+      map.set('ce_' + i, d.textContent.trim());
+    }
+  });
+  // textarea values
+  container.querySelectorAll('textarea').forEach((ta, i) => {
+    ta.dataset.snapIdx = i;
+    map.set('ta_' + i, ta.value);
+  });
+  return map;
+}
+
+function freezeClone(root, snapshot) {
+  const cs = (el) => window.getComputedStyle(el);
+
+  // 1. date-display divs → static span with correct text
+  root.querySelectorAll('.date-display').forEach(d => {
+    const val = snapshot?.get('date_' + d.dataset.snapIdx) ?? d.textContent.trim();
+    const span = document.createElement('span');
+    span.style.cssText = 'display:block;width:100%;text-align:center;padding:0.3rem 0.4rem;font-size:0.78rem;color:' + (val ? '#1a1a2e' : '#bbb');
+    span.textContent = val || '';
+    d.parentNode.replaceChild(span, d);
   });
 
-  // 2. date input overlays → remove
+  // 2. other contenteditable divs
+  root.querySelectorAll('[contenteditable]').forEach(d => {
+    const val = snapshot?.get('ce_' + d.dataset.ceIdx) ?? d.textContent.trim();
+    d.removeAttribute('contenteditable');
+    d.style.color = val ? '#1a1a2e' : '#bbb';
+    d.textContent = val || '';
+  });
+
+  // 3. date input overlays → remove
   root.querySelectorAll('input[type="date"]').forEach(el => el.remove());
 
-  // 3. select elements → replace with span showing selected text
+  // 4. select → span with selected text
   root.querySelectorAll('select').forEach(sel => {
+    const snap = snapshot?.get('sel_' + sel.dataset.snapIdx);
+    const val = snap?.value ?? sel.value;
+    const isRed = snap?.isRed ?? false;
     const span = document.createElement('span');
-    span.style.cssText = sel.style.cssText;
-    span.style.display = 'block';
-    span.style.width = '100%';
-    span.style.padding = sel.style.padding || '0.3rem 0.4rem';
-    span.style.fontSize = window.getComputedStyle(sel).fontSize;
-    span.style.fontFamily = window.getComputedStyle(sel).fontFamily;
-    span.style.color = sel.classList.contains('set') || sel.classList.contains('nemoc-sel') 
-      ? (sel.value ? '#c0392b' : '#999') 
-      : (sel.value ? '#1a1a2e' : '#999');
-    span.textContent = sel.value || '—';
+    span.style.cssText = 'display:block;width:100%;text-align:center;padding:0.28rem 0.25rem;font-size:0.78rem;font-family:inherit;';
+    span.style.color = isRed ? '#c0392b' : (val ? '#1a1a2e' : '#999');
+    span.style.fontWeight = isRed ? '700' : '400';
+    span.textContent = val || '—';
     sel.parentNode.replaceChild(span, sel);
   });
 
-  // 4. regular text/number inputs → replace with span
-  root.querySelectorAll('input[type="text"], input[type="number"], input[type="search"]').forEach(inp => {
+  // 5. inputs → span
+  root.querySelectorAll('input[type="text"],input[type="number"],input[type="search"]').forEach(inp => {
+    const val = snapshot?.get('inp_' + inp.dataset.snapIdx) ?? inp.value;
     const span = document.createElement('span');
-    span.style.display = 'block';
-    span.style.width = '100%';
-    span.style.textAlign = inp.style.textAlign || 'center';
-    span.style.padding = '0 0.4rem';
-    span.style.fontSize = window.getComputedStyle(inp).fontSize;
-    span.style.fontFamily = window.getComputedStyle(inp).fontFamily;
-    span.style.color = '#1a1a2e';
-    span.textContent = inp.value || '';
+    span.style.cssText = 'display:block;width:100%;text-align:' + (inp.style.textAlign || 'center') + ';padding:0 0.4rem;font-size:0.78rem;color:' + (val ? '#1a1a2e' : '#bbb');
+    span.textContent = val || '';
     inp.parentNode.replaceChild(span, inp);
   });
 
-  // 5. textarea → replace with div
+  // 6. textarea → div
   root.querySelectorAll('textarea').forEach(ta => {
+    const val = snapshot?.get('ta_' + ta.dataset.snapIdx) ?? ta.value;
     const div = document.createElement('div');
     div.style.cssText = ta.getAttribute('style') || '';
     div.style.whiteSpace = 'pre-wrap';
-    div.textContent = ta.value || '';
+    div.style.color = '#1a1a2e';
+    div.textContent = val || '';
     ta.parentNode.replaceChild(div, ta);
   });
 
-  // 6. remove buttons
-  root.querySelectorAll('.add-row-btn, .del-btn, .date-display::after').forEach(el => el.remove());
+  // 7. remove buttons + epoch hints
+  root.querySelectorAll('.add-row-btn,.del-btn,.epoch-hint').forEach(el => el.remove());
 }
 
 async function generatePDFDownload() {
@@ -2298,7 +2338,7 @@ async function generatePDFDownload() {
       const page2 = document.createElement('div');
       page2.style.cssText = `width:${pxW}px;background:white;padding:8px;font-family:'Google Sans Flex',sans-serif;`;
       const p2clone2 = p2el.cloneNode(true);
-      freezeClone(p2clone2);
+      freezeClone(p2clone2, snap);
       page2.appendChild(p2clone2);
       document.body.appendChild(page2);
       const canvas2 = await html2canvas(page2, canvasOpts);
