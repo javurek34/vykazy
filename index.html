@@ -1170,6 +1170,16 @@
       <button class="btn btn-primary" onclick="generateTable()" style="margin-top:1rem">Vygenerovat výkaz</button>
     </div>
 
+    <div class="sidebar-section">
+      <h3>Uložení rozpracovaného výkazu</h3>
+      <button class="btn btn-primary" onclick="saveVykaz()">Uložit v prohlížeči</button>
+      <button class="btn btn-clear" onclick="loadVykaz()">Načíst z prohlížeče</button>
+      <button class="btn btn-clear" onclick="downloadVykaz()">Stáhnout zálohu (.json)</button>
+      <button class="btn btn-clear" onclick="document.getElementById('vykaz-import').click()">Načíst zálohu ze souboru</button>
+      <input id="vykaz-import" type="file" accept=".json,application/json" hidden onchange="importVykaz(this)">
+      <p style="font-size:0.75rem;color:var(--muted);line-height:1.5;margin-top:0.6rem">Ukládání je ruční. V prohlížeči zůstává poslední uložený výkaz. Pro archivaci více měsíců nebo přenos na jiné zařízení stáhněte zálohu. Záloha obsahuje osobní údaje.</p>
+    </div>
+
     <div class="sidebar-section" id="stats-section" style="display:none">
       <h3>Souhrn</h3>
       <div class="stats">
@@ -1632,7 +1642,7 @@ function makeDateCell(onChangeCb) {
 }
 
 function addSupRow() {
-  const id = Date.now();
+  const id = crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2);
   const tr = document.createElement('tr');
   tr.id = 'sup-'+id;
 
@@ -1742,7 +1752,7 @@ function addSupRow() {
 function addOvertimeRow() {
   const pozice = document.getElementById('pozice').value;
   const isDruzina = ['druzina','ucitel','asistent'].includes(pozice);
-  const id = Date.now();
+  const id = crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2);
   const tr = document.createElement('tr');
   tr.id = 'ot-'+id;
 
@@ -1833,7 +1843,7 @@ function addOvertimeRow() {
 }
 
 function addAkceRow() {
-  const id = Date.now();
+  const id = crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2);
   const tr = document.createElement('tr');
   tr.id = 'akce-'+id;
 
@@ -1929,7 +1939,7 @@ function syncSuplování() {
 }
 
 function addParlamentRow() {
-  const id = Date.now();
+  const id = crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2);
   const tr = document.createElement('tr');
   tr.id = 'par-'+id;
 
@@ -2378,6 +2388,84 @@ async function generatePDFDownload() {
     if (wasDark) document.documentElement.setAttribute('data-theme', 'dark');
   }
 }
+</script>
+<script>
+// Ukládá se pouze strukturovaný text a hodnoty, nikdy HTML ze zálohy.
+const VYKAZ_KEY = 'vykaz-pracovni-doby-v1';
+const VYKAZ_FIELDS = 'input,select,textarea,[contenteditable="true"],.date-display';
+const VYKAZ_ROWS = {'sup-body':addSupRow,'overtime-body':addOvertimeRow,'akce-body':addAkceRow,'parlament-body':addParlamentRow};
+function readFields(root) {
+  return [...root.querySelectorAll(VYKAZ_FIELDS)].map(el => ({value:el.matches('input,select,textarea') ? el.value : el.textContent, checked:el.matches('input[type=checkbox]') ? el.checked : null}));
+}
+function writeFields(root, values) {
+  const els = [...root.querySelectorAll(VYKAZ_FIELDS)];
+  values.forEach((v,i) => {
+    const el = els[i]; if (!el) return;
+    if (el.matches('input,select,textarea')) { el.value=v.value; el.dataset.userEdited='1'; }
+    else el.textContent=v.value;
+    if (v.checked !== null) el.checked=v.checked;
+  });
+}
+function captureVykaz() {
+  return {format:'vykaz-pracovni-doby',version:1,savedAt:new Date().toISOString(),
+    settings:readFields(document.querySelector('.sidebar-section')),
+    generated:!!document.getElementById('hodiny-body'),
+    main:readFields(document.getElementById('main')),
+    rows:Object.fromEntries(Object.keys(VYKAZ_ROWS).map(id=>[id, [...(document.getElementById(id)?.children || [])].map(readFields)]))};
+}
+function validateVykaz(data) {
+  const fields = a => Array.isArray(a) && a.length<10000 && a.every(v=>v && typeof v.value==='string' && v.value.length<100000 && (v.checked===null || typeof v.checked==='boolean'));
+  if (!data || data.format!=='vykaz-pracovni-doby' || data.version!==1 || typeof data.generated!=='boolean' || !fields(data.settings) || data.settings.length!==11 || !fields(data.main) || !data.rows || !Object.keys(VYKAZ_ROWS).every(id=>Array.isArray(data.rows[id]) && data.rows[id].length<=500 && data.rows[id].every(fields))) throw Error('Neplatný formát zálohy');
+  if (!['ucitel','druzina','asistent','neped','speciped'].includes(data.settings[0].value) || !data.settings[1].value.trim() && data.generated || !/^([1-9]|1[0-2])$/.test(data.settings[2].value) || !/^\d{4}$/.test(data.settings[3].value) || !data.settings.slice(6).some(v=>v.checked)) throw Error('Neplatné základní údaje');
+}
+async function restoreVykaz(data) {
+  validateVykaz(data);
+  if (!confirm('Načtením nahradíte aktuálně vyplněný výkaz. Pokračovat?')) return;
+  writeFields(document.querySelector('.sidebar-section'),data.settings);
+  if (data.generated) {
+    generateTable();
+    for (const [id,add] of Object.entries(VYKAZ_ROWS)) {
+      const body=document.getElementById(id); if (!body) continue;
+      body.replaceChildren();
+      for (const values of data.rows[id]) {add(); writeFields(body.lastElementChild,values);}
+    }
+    writeFields(document.getElementById('main'),data.main);
+    // Přepočty až po obnovení všech hodnot; posluchače zůstávají z původních funkcí.
+    for (const id of Object.keys(VYKAZ_ROWS)) document.getElementById(id)?.querySelectorAll(VYKAZ_FIELDS).forEach(el=>{
+      el.dispatchEvent(new Event(el.matches('select,input[type=date]')?'change':'input',{bubbles:true}));
+    });
+    document.querySelectorAll('.h-nemoc').forEach(el=>el.classList.toggle('set',!!el.value));
+    updateStats();
+  } else {
+    document.getElementById('main').replaceChildren();
+    document.getElementById('stats-section').style.display='none';
+    document.getElementById('export-section').style.display='none';
+  }
+  syncAllDaysCheckbox();
+  showToast('✓ Výkaz načten');
+}
+function saveVykaz() {
+  try {localStorage.setItem(VYKAZ_KEY,JSON.stringify(captureVykaz())); showToast('✓ Výkaz uložen v tomto prohlížeči');}
+  catch(e) {showToast('Uložení se nezdařilo. Stáhněte zálohu do souboru.');}
+}
+async function loadVykaz() {
+  try {const raw=localStorage.getItem(VYKAZ_KEY); if (!raw) {showToast('V prohlížeči zatím není uložený výkaz'); return;} await restoreVykaz(JSON.parse(raw));}
+  catch(e) {showToast('Uložený výkaz nelze načíst: '+e.message);}
+}
+function downloadVykaz() {
+  const data=captureVykaz();
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const link=document.createElement('a'); link.href=url;
+  link.download='Vykaz_'+document.getElementById('rok').value+'_'+document.getElementById('mesic').value+'.json';
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('✓ Záloha připravena ke stažení');
+}
+async function importVykaz(input) {
+  try {const file=input.files[0]; if (!file) return; if(file.size>5000000) throw Error('Soubor je příliš velký'); await restoreVykaz(JSON.parse(await file.text()));}
+  catch(e) {showToast('Zálohu nelze načíst: '+e.message);}
+  finally {input.value='';}
+}
+
 </script>
 </body>
 </html>
